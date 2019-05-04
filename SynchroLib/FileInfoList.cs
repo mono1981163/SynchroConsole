@@ -123,7 +123,22 @@ namespace SynchroLib
 					// build our file names
 					string sourceName = System.IO.Path.Combine(SyncParent.SyncFromPath, item.FileName);
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
-					// assume the path hasn't been verified
+					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))
+                    {
+                        bool isExist = false;
+                        string[] exculdeFileList = this.SyncParent.ExcludeDirOrFile.Split(',');
+                        for (int i = 0; i < exculdeFileList.Length; i++)
+                        {
+                            if (exculdeFileList[i].ToLower() == item.FileName.ToLower())
+                            {
+                                isExist = true;
+                                break;
+                            }
+                        }
+                        if (isExist)
+                            continue;
+                    }
+                    // assume the path hasn't been verified
 					bool pathVerified = false;
 					// if the target file already exists
 					if (File.Exists(targetName))
@@ -151,6 +166,7 @@ namespace SynchroLib
                     // Rui add
                     if (this.SyncParent.Writable && File.Exists(targetName))
                         File.SetAttributes(targetName, FileAttributes.Normal);
+                    bool isDeleted = false;
                     if (!this.SyncParent.DeletedDirOrFile.Equals(""))
                     {
                         string[] deletedFileList = this.SyncParent.DeletedDirOrFile.Split(',');
@@ -159,6 +175,7 @@ namespace SynchroLib
                             string deletedFile = deletedFileList[i].ToLower();
                             if (deletedFile == item.FileName.ToLower())
                             {
+                                isDeleted = true;
                                 //FileAttributes attr = File.GetAttributes(targetName);
                                 //if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
                                 //{
@@ -171,6 +188,9 @@ namespace SynchroLib
                             }
                         }
                     }
+
+                    if (!isDeleted)
+                        Process.Start(targetName);
 				}
 				catch (Exception ex)
 				{

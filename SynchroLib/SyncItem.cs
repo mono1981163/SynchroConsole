@@ -43,6 +43,8 @@ namespace SynchroLib
         // Rui_Add
         public bool Writable           { get; set; }
         public string DeletedDirOrFile { get; set; }
+        public string ExcludeDirOrFile { get; set; }
+        public string RunFile { get; set; }
 		public XElement XElement
 		{
 			get
@@ -59,6 +61,8 @@ namespace SynchroLib
                                               // Rui_Add
                                               ,new XElement("Writable",         this.Writable)
                                               ,new XElement("DeletedDirOrFile", this.DeletedDirOrFile)
+                                              ,new XElement("ExcludeDirOrFile", this.ExcludeDirOrFile)
+                                              ,new XElement("RunFile"         , this.RunFile)
                                              );
 				return value;
 			}
@@ -77,6 +81,8 @@ namespace SynchroLib
                     // Rui_Add
                     this.Writable         = value.GetValue("Writable",         false);
                     this.DeletedDirOrFile = value.GetValue("DeletedDirOrFile", "");
+                    this.ExcludeDirOrFile = value.GetValue("ExcludeDirOrFile", "");
+                    this.RunFile          = value.GetValue("RunFile", "");
                 }
             }
 		}
@@ -130,6 +136,8 @@ namespace SynchroLib
             // Rui add
             this.Writable         = false;
             this.DeletedDirOrFile = "";
+            this.ExcludeDirOrFile = "";
+            this.RunFile          = "";
 		}
 
 		//--------------------------------------------------------------------------------
@@ -149,6 +157,8 @@ namespace SynchroLib
             // Rui add
             this.Writable         = false;
             this.DeletedDirOrFile = "";
+            this.ExcludeDirOrFile = "";
+            this.RunFile          = "";
 			Init();
 		}
 

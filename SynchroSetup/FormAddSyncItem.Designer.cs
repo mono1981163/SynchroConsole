@@ -51,6 +51,10 @@
             this.checkBoxLck = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.deletedDirOrFile = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.excludeFile = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.runFile = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -251,7 +255,7 @@
             // checkBoxLck
             // 
             this.checkBoxLck.AutoSize = true;
-            this.checkBoxLck.Location = new System.Drawing.Point(16, 267);
+            this.checkBoxLck.Location = new System.Drawing.Point(12, 319);
             this.checkBoxLck.Name = "checkBoxLck";
             this.checkBoxLck.Size = new System.Drawing.Size(219, 17);
             this.checkBoxLck.TabIndex = 15;
@@ -274,11 +278,48 @@
             this.deletedDirOrFile.Size = new System.Drawing.Size(341, 20);
             this.deletedDirOrFile.TabIndex = 10;
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(12, 271);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(138, 13);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "Exclude sub path from input";
+            // 
+            // excludeFile
+            // 
+            this.excludeFile.Location = new System.Drawing.Point(172, 268);
+            this.excludeFile.Name = "excludeFile";
+            this.excludeFile.Size = new System.Drawing.Size(305, 20);
+            this.excludeFile.TabIndex = 20;
+            this.excludeFile.Text = "Yucheng Printer System.docx";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(14, 296);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(113, 13);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "Run these file patterns";
+            // 
+            // runFile
+            // 
+            this.runFile.Location = new System.Drawing.Point(136, 293);
+            this.runFile.Name = "runFile";
+            this.runFile.Size = new System.Drawing.Size(341, 20);
+            this.runFile.TabIndex = 22;
+            // 
             // FormAddSyncItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 632);
+            this.Controls.Add(this.runFile);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.excludeFile);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.labelHoverList);
             this.Controls.Add(this.checkBoxEnable);
@@ -342,5 +383,9 @@
         private System.Windows.Forms.CheckBox checkBoxLck;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox deletedDirOrFile;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox excludeFile;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox runFile;
     }
 }
