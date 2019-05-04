@@ -42,9 +42,9 @@ namespace SynchroSetup
 					m_syncItem.Enabled          = this.checkBoxEnable.Checked;
                     // Rui_Add
                     m_syncItem.Writable         = this.checkBoxMakeFilesWritable.Checked;
-                    m_syncItem.DeletedDirOrFile = this.deletedDirOrFile.Text;
-                    m_syncItem.ExcludeDirOrFile = this.excludeFile.Text;
-                    m_syncItem.RunFile          = this.runFile.Text;
+                    m_syncItem.DeletedDirOrFile = this.textBoxDeletedDirOrFile.Text;
+                    m_syncItem.ExcludeDirOrFile = this.textBoxExcludeFile.Text;
+                    m_syncItem.RunFile          = this.textBoxRunFile.Text;
                     m_syncItem.ForceDownlaod    = this.checkBoxForceDownload.Checked;
                 }
                 return m_syncItem;
@@ -92,9 +92,9 @@ namespace SynchroSetup
 				this.checkBoxRemoveAfterSync.Checked  = item.DeleteAfterSync;
                 // Rui_Add
                 this.checkBoxMakeFilesWritable.Checked= item.Writable;
-                this.deletedDirOrFile.Text            = item.DeletedDirOrFile;
-                this.excludeFile.Text                 = item.ExcludeDirOrFile;
-                this.runFile.Text                     = item.RunFile;
+                this.textBoxDeletedDirOrFile.Text            = item.DeletedDirOrFile;
+                this.textBoxExcludeFile.Text                 = item.ExcludeDirOrFile;
+                this.textBoxRunFile.Text                     = item.RunFile;
                 this.checkBoxForceDownload.Checked    = item.ForceDownlaod;
             }
         }
