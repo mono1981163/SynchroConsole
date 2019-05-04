@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml.Linq;
+using System.Windows.Forms;
 
 #if (__USE_THREAD_POOL__)
 // if you want to use the SmartThreadPool, and the compiler failed here, you neeed to 
@@ -39,7 +40,6 @@ namespace SynchroLib
 		public string SyncToPath       { get; set; }
 		public string BackupPath       { get; set; }
 		public bool   Enabled          { get; set; }
-
         // Rui_Add
         public bool Writable           { get; set; }
 		public XElement XElement
@@ -56,7 +56,7 @@ namespace SynchroLib
 											  ,new XElement("BackupBeforeSync", this.BackupBeforeSync)
 											  ,new XElement("DeleteAfterSync",  this.DeleteAfterSync)
                                               // Rui_Add
-                                              , new XElement("Writable",         this.Writable)
+                                              ,new XElement("Writable",         this.Writable)
                                              );
 				return value;
 			}
@@ -73,7 +73,7 @@ namespace SynchroLib
 					this.BackupBeforeSync = value.GetValue("BackupBeforeSync", false);
 					this.DeleteAfterSync  = value.GetValue("DeleteAfterSync",  false);
                     // Rui_Add
-                    this.Writable = value.GetValue("Writable", false);
+                    this.Writable         = value.GetValue("Writable", false);
                 }
             }
 		}
@@ -124,6 +124,8 @@ namespace SynchroLib
 		    this.Name             = "";
 		    this.SyncFromPath     = "";
 		    this.SyncToPath       = "";
+            // Rui add
+            this.Writable         = false;
 		}
 
 		//--------------------------------------------------------------------------------
@@ -140,6 +142,8 @@ namespace SynchroLib
 			this.Name             = "";
 			this.SyncFromPath     = from;
 			this.SyncToPath       = to;
+            // Rui add
+            this.Writable         = false;
 			Init();
 		}
 
@@ -236,8 +240,9 @@ namespace SynchroLib
 		            throw;
 		        }
 		    }
+            
 		}
-
+       
 		//--------------------------------------------------------------------------------
 		/// <summary>
 		/// Synchronizer thread delegate - updates the files in the target folder, and 

@@ -40,8 +40,10 @@ namespace SynchroSetup
 					m_syncItem.SyncSubfolders   = this.checkBoxIncludeSubs.Checked;
 					m_syncItem.SyncToPath       = this.textBoxSyncTo.Text;
 					m_syncItem.Enabled          = this.checkBoxEnable.Checked;
-				}
-				return m_syncItem;
+                    // Rui_Add
+                    m_syncItem.Writable         = this.checkBoxMakeFilesWritable.Checked;
+                }
+                return m_syncItem;
 			}
 			private set
 			{
@@ -84,8 +86,10 @@ namespace SynchroSetup
 				this.checkBoxEnable.Checked           = item.Enabled;
 				this.checkBoxIncludeSubs.Checked      = item.SyncSubfolders;
 				this.checkBoxRemoveAfterSync.Checked  = item.DeleteAfterSync;
-			}
-		}
+                // Rui_Add
+                this.checkBoxMakeFilesWritable.Checked= item.Writable;
+            }
+        }
 
 		//--------------------------------------------------------------------------------
 		/// <summary>

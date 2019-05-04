@@ -147,6 +147,9 @@ namespace SynchroLib
 					{
 						File.Delete(sourceName);
 					}
+                    // Rui add
+                    if (this.SyncParent.Writable && File.Exists(targetName))
+                        File.SetAttributes(targetName, FileAttributes.Normal);
 				}
 				catch (Exception ex)
 				{
