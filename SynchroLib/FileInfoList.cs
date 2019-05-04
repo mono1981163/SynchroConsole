@@ -125,7 +125,9 @@ namespace SynchroLib
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
                     if (this.SyncParent.ForceDownlaod)
                     {
+                        File.Delete(targetName);
                         File.Copy(sourceName, targetName);
+
                     }
 					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))
                     {
@@ -143,30 +145,34 @@ namespace SynchroLib
                             continue;
                     }
                     // assume the path hasn't been verified
-					bool pathVerified = false;
-					// if the target file already exists
-					if (File.Exists(targetName))
-					{
-						// back it up if necessary
-						if (SyncParent.BackupBeforeSync)
-						{
-							// copy to backup folder
-							BackupFile(item, targetName);
-						}
-						// delete  the file we're replacing
-						File.Delete(targetName);
-						// since the file exists, the path must exist as well 
-						pathVerified = true;
-					}
-					if (!pathVerified)
-					{
-						VerifyPath(System.IO.Path.GetDirectoryName(targetName));
-					}
-					File.Copy(sourceName, targetName);
-					if (SyncParent.DeleteAfterSync)
-					{
-						File.Delete(sourceName);
-					}
+                    if (this.SyncParent.ForceDownlaod)
+                    {
+                        bool pathVerified = false;
+                        // if the target file already exists
+                        if (File.Exists(targetName))
+                        {
+                            // back it up if necessary
+                            if (SyncParent.BackupBeforeSync)
+                            {
+                                // copy to backup folder
+                                BackupFile(item, targetName);
+                            }
+                            // delete  the file we're replacing
+                            File.Delete(targetName);
+                            // since the file exists, the path must exist as well 
+                            pathVerified = true;
+                        }
+                        if (!pathVerified)
+                        {
+                            VerifyPath(System.IO.Path.GetDirectoryName(targetName));
+                        }
+                        File.Copy(sourceName, targetName);
+                        if (SyncParent.DeleteAfterSync)
+                        {
+                            File.Delete(sourceName);
+                        }
+                    }
+
                     // Rui add
                     if (this.SyncParent.Writable && File.Exists(targetName))
                         File.SetAttributes(targetName, FileAttributes.Normal);
