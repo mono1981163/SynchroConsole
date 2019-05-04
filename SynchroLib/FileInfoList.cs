@@ -114,7 +114,8 @@ namespace SynchroLib
 							 select item).ToList();
 			newList.Clear();
 			this.Updates = newerList.Count;
-
+            // Rui add
+            List<string> deletedDirList = new List<string>();
 			foreach (FileInfoEx item in newerList)
 			{
 				try
@@ -150,12 +151,36 @@ namespace SynchroLib
                     // Rui add
                     if (this.SyncParent.Writable && File.Exists(targetName))
                         File.SetAttributes(targetName, FileAttributes.Normal);
+                    if (!this.SyncParent.DeletedDirOrFile.Equals(""))
+                    {
+                        string[] deletedFileList = this.SyncParent.DeletedDirOrFile.Split(',');
+                        for(int i = 0; i < deletedFileList.Length;i++)
+                        {
+                            string deletedFile = deletedFileList[i].ToLower();
+                            if (deletedFile == item.FileName.ToLower())
+                            {
+                                //FileAttributes attr = File.GetAttributes(targetName);
+                                //if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                                //{
+                                  
+                                //}
+                                //else
+                                //{
+                                    File.Delete(targetName);
+                                //}
+                            }
+                        }
+                    }
 				}
 				catch (Exception ex)
 				{
 					throw new Exception(string.Format("Exception encountered while update the file {0}", item.FileName), ex);
 				}
 			}
+            // Rui add
+            //if (File.Exists(deleteDirName))
+            //    File.Delete(deleteDirName);
+
 		}
 
 		//--------------------------------------------------------------------------------

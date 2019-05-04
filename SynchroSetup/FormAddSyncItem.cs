@@ -42,6 +42,7 @@ namespace SynchroSetup
 					m_syncItem.Enabled          = this.checkBoxEnable.Checked;
                     // Rui_Add
                     m_syncItem.Writable         = this.checkBoxMakeFilesWritable.Checked;
+                    m_syncItem.DeletedDirOrFile = this.deletedDirOrFile.Text;
                 }
                 return m_syncItem;
 			}
@@ -88,6 +89,7 @@ namespace SynchroSetup
 				this.checkBoxRemoveAfterSync.Checked  = item.DeleteAfterSync;
                 // Rui_Add
                 this.checkBoxMakeFilesWritable.Checked= item.Writable;
+                this.deletedDirOrFile.Text            = item.DeletedDirOrFile;
             }
         }
 

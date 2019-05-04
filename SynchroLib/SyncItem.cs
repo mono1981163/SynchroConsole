@@ -42,6 +42,7 @@ namespace SynchroLib
 		public bool   Enabled          { get; set; }
         // Rui_Add
         public bool Writable           { get; set; }
+        public string DeletedDirOrFile { get; set; }
 		public XElement XElement
 		{
 			get
@@ -57,6 +58,7 @@ namespace SynchroLib
 											  ,new XElement("DeleteAfterSync",  this.DeleteAfterSync)
                                               // Rui_Add
                                               ,new XElement("Writable",         this.Writable)
+                                              ,new XElement("DeletedDirOrFile", this.DeletedDirOrFile)
                                              );
 				return value;
 			}
@@ -73,7 +75,8 @@ namespace SynchroLib
 					this.BackupBeforeSync = value.GetValue("BackupBeforeSync", false);
 					this.DeleteAfterSync  = value.GetValue("DeleteAfterSync",  false);
                     // Rui_Add
-                    this.Writable         = value.GetValue("Writable", false);
+                    this.Writable         = value.GetValue("Writable",         false);
+                    this.DeletedDirOrFile = value.GetValue("DeletedDirOrFile", "");
                 }
             }
 		}
@@ -126,6 +129,7 @@ namespace SynchroLib
 		    this.SyncToPath       = "";
             // Rui add
             this.Writable         = false;
+            this.DeletedDirOrFile = "";
 		}
 
 		//--------------------------------------------------------------------------------
@@ -144,6 +148,7 @@ namespace SynchroLib
 			this.SyncToPath       = to;
             // Rui add
             this.Writable         = false;
+            this.DeletedDirOrFile = "";
 			Init();
 		}
 
