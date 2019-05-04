@@ -55,6 +55,7 @@
             this.excludeFile = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.runFile = new System.Windows.Forms.TextBox();
+            this.checkBoxForceDownload = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -255,7 +256,7 @@
             // checkBoxLck
             // 
             this.checkBoxLck.AutoSize = true;
-            this.checkBoxLck.Location = new System.Drawing.Point(12, 319);
+            this.checkBoxLck.Location = new System.Drawing.Point(15, 348);
             this.checkBoxLck.Name = "checkBoxLck";
             this.checkBoxLck.Size = new System.Drawing.Size(219, 17);
             this.checkBoxLck.TabIndex = 15;
@@ -298,7 +299,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(14, 296);
+            this.label8.Location = new System.Drawing.Point(13, 296);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(113, 13);
             this.label8.TabIndex = 21;
@@ -311,11 +312,22 @@
             this.runFile.Size = new System.Drawing.Size(341, 20);
             this.runFile.TabIndex = 22;
             // 
+            // checkBoxForceDownload
+            // 
+            this.checkBoxForceDownload.AutoSize = true;
+            this.checkBoxForceDownload.Location = new System.Drawing.Point(16, 323);
+            this.checkBoxForceDownload.Name = "checkBoxForceDownload";
+            this.checkBoxForceDownload.Size = new System.Drawing.Size(104, 17);
+            this.checkBoxForceDownload.TabIndex = 23;
+            this.checkBoxForceDownload.Text = "Force Download";
+            this.checkBoxForceDownload.UseVisualStyleBackColor = true;
+            // 
             // FormAddSyncItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 632);
+            this.Controls.Add(this.checkBoxForceDownload);
             this.Controls.Add(this.runFile);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.excludeFile);
@@ -387,5 +399,6 @@
         private System.Windows.Forms.TextBox excludeFile;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox runFile;
+        private System.Windows.Forms.CheckBox checkBoxForceDownload;
     }
 }

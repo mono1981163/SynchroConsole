@@ -123,6 +123,10 @@ namespace SynchroLib
 					// build our file names
 					string sourceName = System.IO.Path.Combine(SyncParent.SyncFromPath, item.FileName);
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
+                    if (this.SyncParent.ForceDownlaod)
+                    {
+                        File.Copy(sourceName, targetName);
+                    }
 					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))
                     {
                         bool isExist = false;

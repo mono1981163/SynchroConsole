@@ -45,6 +45,7 @@ namespace SynchroSetup
                     m_syncItem.DeletedDirOrFile = this.deletedDirOrFile.Text;
                     m_syncItem.ExcludeDirOrFile = this.excludeFile.Text;
                     m_syncItem.RunFile          = this.runFile.Text;
+                    m_syncItem.ForceDownlaod    = this.checkBoxForceDownload.Checked;
                 }
                 return m_syncItem;
 			}
@@ -94,6 +95,7 @@ namespace SynchroSetup
                 this.deletedDirOrFile.Text            = item.DeletedDirOrFile;
                 this.excludeFile.Text                 = item.ExcludeDirOrFile;
                 this.runFile.Text                     = item.RunFile;
+                this.checkBoxForceDownload.Checked    = item.ForceDownlaod;
             }
         }
 

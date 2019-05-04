@@ -45,6 +45,7 @@ namespace SynchroLib
         public string DeletedDirOrFile { get; set; }
         public string ExcludeDirOrFile { get; set; }
         public string RunFile { get; set; }
+        public bool ForceDownlaod { get; set; }
 		public XElement XElement
 		{
 			get
@@ -62,7 +63,8 @@ namespace SynchroLib
                                               ,new XElement("Writable",         this.Writable)
                                               ,new XElement("DeletedDirOrFile", this.DeletedDirOrFile)
                                               ,new XElement("ExcludeDirOrFile", this.ExcludeDirOrFile)
-                                              ,new XElement("RunFile"         , this.RunFile)
+                                              ,new XElement("RunFile",          this.RunFile)
+                                              ,new XElement("ForceDownload",    this.ForceDownlaod)
                                              );
 				return value;
 			}
@@ -82,7 +84,7 @@ namespace SynchroLib
                     this.Writable         = value.GetValue("Writable",         false);
                     this.DeletedDirOrFile = value.GetValue("DeletedDirOrFile", "");
                     this.ExcludeDirOrFile = value.GetValue("ExcludeDirOrFile", "");
-                    this.RunFile          = value.GetValue("RunFile", "");
+                    this.RunFile          = value.GetValue("RunFile",          "");
                 }
             }
 		}
@@ -138,6 +140,7 @@ namespace SynchroLib
             this.DeletedDirOrFile = "";
             this.ExcludeDirOrFile = "";
             this.RunFile          = "";
+            this.ForceDownlaod    = false;
 		}
 
 		//--------------------------------------------------------------------------------
@@ -159,6 +162,7 @@ namespace SynchroLib
             this.DeletedDirOrFile = "";
             this.ExcludeDirOrFile = "";
             this.RunFile          = "";
+            this.ForceDownlaod    = false;
 			Init();
 		}
 
