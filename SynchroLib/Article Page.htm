@@ -1,0 +1,1129 @@
+﻿<h2>Introduction</h2>
+
+<p>I run my own web server at home, and as you might guess, I make frequent updates to it. The update 
+process involves copying new/changed files to a shared folder, and then using terminal services to 
+log onto the box and copy the files to the apprporiate inetpub sub-folder. As you might guess, this 
+has become a bit of a bother because there are a number of sub-folders (that have sub-folders, and 
+so on), and it's kind of a pain to have to actually log onto the server in order to complete the 
+operation. Surely, I thought, there had to be a better way.</p>
+
+<p><b>Caveat:</b> Some of the code shown below may have changed since being added as article content. I 
+tried to update everything, but as is likely in an article of this size, I may have nmissed one or 
+two things. Be patient, and make sure you review the actual code (in the zip file) if something looks 
+funny in the article.</p>
+
+<p><b>NOTICE:</b> Screenshots are at the end of this article because it made more sense to put them where 
+I talk about the GUI.</p>
+
+<h2>Solution</h2>
+
+<p>I needed an app that would sync up folders that didn't involve anything more tedious than just 
+copying the files somewhere.  Yes, I'm aware of programs like Microsoft Sync Toy and a third-party 
+product called Sure-Sync, but being a programmer, I figured this would be a fairly straightforward 
+application to write myself. Afterall, it doesn't have to be battle-tested for public consumption, 
+and I wanted a certain degree of control over precisely how it works.  Besides, it's more fun to 
+write code than it is to install someone else's. This article (and the code it describes) is the 
+result.</p>
+
+<h2>Featured Technologies</h2>
+
+<p>The following technologies will be demonstrated in this article:</p>
+
+<ul><li>Multi-threading (and thread pooling)</li></ul>
+<ul><li>Extension methods</li></ul>
+<ul><li>WCF (using named pipes)</li></ul>
+<ul><li>System tray application</li></ul>
+<ul><li>Interprocess communication (using WCF)</li></ul>
+<ul><li>Windows services</li></ul>
+<ul><li>Windows Forms</li></ul>
+<ul><li>Custom events</li></ul>
+<ul><li>Modeless windows</li></ul>
+<ul><li>Forced admin mode</li></ul>
+<ul><li>File I/O</li></ul>
+<ul><li>Start/stop a Windows service programatically</li></ul>
+<ul><li>install/uninstall a Windows service programatically</li></ul>
+
+
+<h2>Preliminary Goals</h2>
+
+<p>Essemtially, this application would somehow detect when new folders or files were created or 
+copied into a source folder, and then immediately copy them to the target folder.  At the same 
+time, I didn't want this app to suck all the life out of the CPU or hog memory.  While I don't 
+personally have a need to watch multiple folders at this time, I figured some of you might, so 
+memory consumption and CPU usage are a reasonable concern.</p>
+
+<p>Every good application starts out with a design, and after a few false starts, I decided I 
+should as well.  It probably goes without saying that this app should take the form of a Windows 
+service (afterall, I want it to run even when a user isn't logged on), so that's the primary 
+thrust of the solution.  All other projects in the solution will be created with the express 
+purpose of supporting the development of the Windows service.</p>
+
+<p>Since debugging a Windows service can be downright painful at times, I decided including some 
+sort of "test console" application would make the task of debugging far less burdensome, allowing 
+me to test the core service code without actually having to go through the install/test/uninstall 
+cycle a billion times.</p> 
+
+<p>Since I now have two applications in the solution that effectively use the same code, it became 
+obvious that I needed a library assembly that would contain the bulk of the core code.</p>
+
+<p>Next, I decided it would be nice if there was a way to configure the app without having to 
+manually edit XML files.  This app would be optional and when running would confine itself to the 
+system tray.</p>
+
+<p>Finally, I thought that the test console/service should be able to communicate status messages 
+to the configuration app, so I need a WCF service to perform that task. Further, I decided that 
+it should use named pipes because all of the assemblies would be running on the same box. Like the 
+core code, it would be used by all of the apps that needed it (three by my last count), and so it 
+deserved its own assembly as well.</p>
+
+<h3>How It's Supposed to Work</h3>
+
+<p>The idea is for the Windows service (or test console app) to wait every X minutes to pass, and 
+then check the staging folder (where new/modified files will be placed by the user).  If 
+new/modified files are found (via some clever comparison code written by yours truly), those 
+files are copied to the target folder.  After the files have been copied, the Windows service 
+attempts to notify the systray application which (if running) will update a listbox control showing 
+the last 24 hours worth of activity.</p>
+
+<p>The object descriptions below are listed in the order they were created, mostly because I 
+couldn't come up with any better way to logically list them.</p>
+
+<h2>SynchroLib - The Core Code</h2>
+
+<p>In designing the core code component, my initial thought was to make use of the code found in 
+my FileSystemWatcher article, but after considering that I might want to watch several folders at 
+one time, I was concerned that the code would turn into a maintenance monster. I therefore decided 
+to take a different approach.</p>
+
+<p>The <code>SynchroLib</code> assembly contains all of the code associated with actually manipulating 
+the folders and files. In the interest of brevity, all path name examples below will be based on the 
+two following eample paths:</p>
+
+<ul><li>Target path (where the files will ulitmately be copied) - C:\inetpub\mywebsite</li></ul>
+<ul><li>Source path (where the new files will be staged) - E:\Staging\mywebsite</li></ul>
+
+<h3>The SyncItemCollection Object</h3>
+
+<p>I create objects derived from collections all the time because I hate typing <code>List&lt;MyObject&gt;</code> 
+all the time, and if the collection needs some special handling (like this one happens to need), it 
+can be abstracted to this class instead of living in the main application.</p>
+
+<p>To that end, this object contains the <code>SyncItem</code> thread management method. All it 
+does is starts the synchronizing process for each <code>SyncItem</code> object. At one point, I 
+had planned on using the <code>SmartThreadPool</code> similar to the code in 
+<a href="">this article</a>, but decided later on that I didn't really need the added complexity 
+of thread pool management. As a result, the <code>SmartThreadPool</code> code is used if the 
+<code>__USE_THREADPOOL__</code> compiler definition is implemented.  All you have to do is 
+define it in the SynchroLib project's <b>Build</b> properties, and then include the <code>SmartThreadPool</code> 
+DLL in the project's assembly references.</p>
+
+<p>Without the use of the <code>SmartThreadPool</code>, the following is the extent of the code 
+found in this object.  First, we have the XElement property that loads the collection with items 
+from the settings file:</p>
+
+<pre lang="cs">//................................................................................
+public XElement XElement
+{
+    get
+    {
+        XElement value = new XElement("SyncItems");
+        foreach(SyncItem item in this)
+        {
+            value.Add(item.XElement);
+        }
+        return value;
+    }
+    set
+    {
+        if (value != null)
+        {
+            foreach(XElement element in value.Elements())
+            {
+                this.Add(new SyncItem(element));
+            }
+        }
+    }
+}</pre>
+
+<p>And then, we have the method that kicks off the <code>SyncItem</code> threads:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public void StartUpdate()
+{
+    if (this.Count > 0)
+    {
+        foreach(SyncItem item in this)
+        {
+            item.Start();
+        }
+    }
+}</pre>
+
+<p>When you look at the actual code in the file, you'll see the comparatively extensive amount of 
+code needed toi implement the threadpool, and you might subsequently agree that while 
+technologically "cooler", it's more code than is necessary to get the job done.  However, remember 
+that you can switch it on with a simple compiler definition, so if that's what blows up your skirt, 
+by all means, be my guest.</p>
+
+<h3>The SyncItem Object</h3>
+
+<p>Each synchronized folder is represented by a SyncItem object, and this object contains the 
+following data properties:</p>
+
+<ul><li><b>Name</b> - This is the english name you can give to the SyncItem, and is only used for 
+easier identification while perusing the status messages.</li></ul>
+<ul><li><b>SyncFromFolder</b> - This is the folder where the user stages files to be synchronized 
+(aka the source folder).</li></ul>
+<ul><li><b>SyncToFolder</b> - This is the folder where files are synchronized to (aka the target 
+folder).</li></ul>
+<ul><li><b>BackupBeforeSync</b> - True if the files being synchronizeded are backed up before they 
+are synchronized.</li></ul>
+<ul><li><b>DeleteAfterSync</b> - True if the files being synchronized are to be deleted from the 
+staging folder after synchtronization has occurred.</li></ul>
+
+<p>I continued my love affair with Linq-to-XML, and provided some easy-to-use properties for 
+convenient setting/getting of the data in the object:</p>
+
+<pre lang="cs">//................................................................................
+public XElement XElement
+{
+    get
+    {
+        XElement value = new XElement("SyncItem"
+                                      ,new XElement("Name",             this.Name)
+                                      ,new XElement("SyncFromPath",     this.SyncFromPath)
+                                      ,new XElement("SyncToPath",       this.SyncToPath)
+                                      ,new XElement("BackupPath",       this.BackupFolder)
+                                      ,new XElement("Enabled",          this.Enabled)
+                                      ,new XElement("SyncSubFolders",   this.SyncSubfolders)
+                                      ,new XElement("BackupBeforeSync", this.BackupBeforeSync)
+                                      ,new XElement("DeleteAfterSync",  this.DeleteAfterSync)
+                                     );
+        return value;
+    }
+    set
+    {
+        this.Name             = value.GetValue("Name",             Guid.NewGuid().ToString("N"));
+        this.SyncFromPath     = value.GetValue("SyncFromPath",     "");
+        this.SyncToPath       = value.GetValue("SyncToPath",       "");
+        this.BackupPath       = value.GetValue("BackupPath",       "");
+        this.Enabled          = value.GetValue("Enabled",          true);
+        this.SyncSubfolders   = value.GetValue("SyncSubFolders",   true);
+        this.BackupBeforeSync = value.GetValue("BackupBeforeSync", false);
+        this.DeleteAfterSync  = value.GetValue("DeleteAfterSync",  false);
+    }
+}</pre>
+
+<p>These properties are supported by an appropriate constructor overload:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public SyncItem(XElement value)
+{
+    this.XElement = value;
+    Init();
+}</pre>
+
+<p>The Init method (called from all constructors) creates and starts the thread if all of the approriate properties have been properly configured:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public void Init()
+{
+    if (this.SyncThread != null)
+    {
+        this.SyncThread.Abort();
+        this.SyncThread = null;
+    }
+    this.SyncThread              = new Thread(new ThreadStart(SyncFiles));
+    this.SyncThread.IsBackground = true;
+    if (this.CanStartSync)
+    {
+        this.ToFilesList = new FileInfoList(this.SyncFromPath, this.SyncToPath);
+        this.ToFilesList.GetFiles(this.SyncToPath, this.SyncSubfolders);
+    }
+}</pre>
+
+<p>When the object is initialized, the target folder is scanned for existing files, and this list 
+of files is maintained for the life of the application.</p>
+
+<p>Because synchronizing could become a lengthy process, the act of synchronizing is performed 
+within a thread. The following method starts the thread.</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public void Start()
+{
+    Debug.WriteLine("{0} STARTED ====================", this.Name);
+    if (this.SyncThread == null || this.SyncThread.ThreadState != System.Threading.ThreadState.Unstarted)
+    {
+        this.SyncThread = new Thread(new ThreadStart(SyncFiles));
+        this.SyncThread.IsBackground = true;
+    }
+    this.SyncThread.Start();
+}</pre>
+
+<p>You may have noticed the if statement includes a <code>ThreadState</code> check. The reason is 
+that once a thread has been stopped, it cannot be restarted, so we have to check the thread state 
+to see if the thread needs to be recreated, or if we can go with what we have.</p>
+
+<p>The actual thread delegate method follows.  It's a very simple method that tells the list of 
+existing files to update itself, and once completed, an event is fired for anyone who might be 
+listening.</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+private void SyncFiles()
+{
+    if (this.CanStartSync)
+    {
+        try
+        {
+            DateTime before  = DateTime.Now;
+            this.ToFilesList.Update(this.SyncFromPath, this.SyncSubfolders);
+
+            DateTime after   = DateTime.Now;
+            TimeSpan elapsed = after - before;
+            int      updates = this.ToFilesList.Updates;
+            FileInfoEvent(this, new FileInfoArgs(updates, elapsed));
+        }
+        catch (ThreadAbortException ex)
+        {
+            if (ex != null) {}
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+}</pre>
+
+<p>Notice that we simply eat the ThreadAbortException (because it most lkely aborted because we told 
+it to), and we simply re-throw any other exception. You may have noticed that before trying to sync 
+files, we check the <code>CanStartSync</code> property. This property performs some sanity checks on 
+the data, and returns true if everythig is copesetic:</p>
+
+<pre lang="cs">
+//................................................................................
+public bool CanStartSync 
+{
+    get
+    {
+        bool canSync = false;
+        if (Directory.Exists(this.SyncFromPath) && 
+            Directory.Exists(this.SyncToPath) &&
+            this.SyncFromPath.ToLower() != this.SyncToPath.ToLower() &&
+            this.Enabled)
+        {
+            canSync = true;
+        }
+        return canSync;
+    }
+}
+</pre>
+
+<p>The event that we send contains the nunmber of updates performed, and how long it took 
+to process the updates.</p>
+
+<pre lang="cs">
+public class FileInfoArgs : EventArgs
+{
+    public int      UpdateCount { get; set; }
+    public TimeSpan Elapsed     { get; set; }
+
+    //--------------------------------------------------------------------------------
+    public FileInfoArgs(int count, TimeSpan elapsed)
+    {
+        this.UpdateCount = count;
+        this.Elapsed     = elapsed;
+    }
+}
+
+public delegate void FileInfoHandler(object sender, FileInfoArgs e);</pre>
+
+
+<h3>The FileInfoEx Object</h3>
+
+<p>This object exists solely because you can't derive a new object from <code>FileInfo</code>. I 
+needed a way to strip the root folder off the retrieved object because we need to be able to compare 
+filenames, but only at the hierarchy location where the folder names are supposed to match. There's 
+no way you can get a compare filenames with their fully qualified paths, and you can't use the 
+<code>FileInfo.Name</code> property because a file with the same name could exist in more than one 
+sub-folder. For instance, this filename:</p>
+
+<p>&nbsp;&nbsp;&nbsp;C:\inetpub\mywebsite\myfile.aspx</p>
+
+...isn't the same file as this one:
+
+<p>&nbsp;&nbsp;&nbsp;C:\inetpub\mywebsite\thisfolder\myfile.aspx</p>
+
+<p>So, to make the files comparable, we have to strip off what I call their root folder names so 
+that the names in the collection look like this:</p>
+
+<p>&nbsp;&nbsp;&nbsp;mywebsite\myfile.aspx</p>
+
+<p>Since I had to create the <code>FileInfoEx</code> object, it made perfect sense to put the file 
+comparison code in it. This is comprised of a single method that deterines if the specified 
+<code>FileInfoEx</code> item matches the one being compared against according to the specified file 
+comparison flags:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public bool Equal(FileInfoEx fileB, FileCompareFlags flags)
+{
+    // assume no matches
+    FileCompareFlags equalFlags = 0;
+
+    // first, we compare the unrooted name (the filename without the 
+    // root from/to path)
+    if ((flags & FileCompareFlags.UnrootedName) == FileCompareFlags.UnrootedName)
+    {
+        equalFlags = (this.FileName == fileB.FileName) ? FileCompareFlags.UnrootedName : 0;
+    }
+
+    // and then we compare the actual FileInfo properties
+    equalFlags |= this.FileInfoObj.EqualityFlags(fileB.FileInfoObj, flags);
+
+    // if the flags that are set here are equal to the flags specified, this 
+    // method will return true
+    return (equalFlags == flags);
+}</pre>
+
+<p>The <code>FileCompareFlags</code> enumerator provides a way to define just how equal a 
+<code>FileInfoEx</code> item has to be to be "equal" in the eyes of the application. Since one or 
+more properties can be compared for equality, the enumerator utilizes the <code>[Flags]</code> 
+attribute, and looks like this:</p>
+
+<pre lang="cs">[Flags]
+public enum FileCompareFlags {All           = 0, 
+                              FullName      = 1, 
+                              Created       = 2, 
+                              LastAccess    = 4, 
+                              LastWrite     = 8, 
+                              Length        = 16,
+                              CreatedUTC    = 32, 
+                              LastAccessUTC = 64, 
+                              LastWriteUTC  = 128, 
+                              Attributes    = 256, 
+                              Extension     = 512, 
+                              UnrootedName  = 1024};</pre>
+
+<p>The final component of file comparison is an extension method that compares the actual <code>FileInfo</code>  
+properties (as well as a couple of support methods:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+private static bool FlagIsSet(FileCompareFlags flags, FileCompareFlags flag)
+{
+    bool isSet = ((flags & flag) == flag);
+    return isSet;
+}
+
+//--------------------------------------------------------------------------------
+public static bool Equal(this FileInfo fileA, FileInfo fileB, FileCompareFlags flags)
+{
+    bool isEqual = (fileA.EqualityFlags(fileB, flags) == flags);
+    return isEqual;
+}
+
+//--------------------------------------------------------------------------------
+public static FileCompareFlags EqualityFlags(this FileInfo fileA, FileInfo fileB, FileCompareFlags flags)
+{
+    FileCompareFlags equalFlags = FileCompareFlags.All;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.Attributes)    && 
+                   fileA.Attributes        == fileB.Attributes)        ? FileCompareFlags.Attributes    : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.Created)       && 
+                   fileA.CreationTime      == fileB.CreationTime)      ? FileCompareFlags.Created       : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.CreatedUTC)    && 
+                   fileA.CreationTimeUtc   == fileB.CreationTimeUtc)   ? FileCompareFlags.CreatedUTC    : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.Extension)     && 
+                   fileA.Extension         == fileB.Extension)         ? FileCompareFlags.Extension     : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.LastAccess)    && 
+                   fileA.LastAccessTime    == fileB.LastAccessTime)    ? FileCompareFlags.LastAccess    : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.LastAccessUTC) && 
+                   fileA.LastAccessTimeUtc == fileB.LastAccessTimeUtc) ? FileCompareFlags.LastAccessUTC : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.LastWrite)     && 
+                   fileA.LastWriteTime     == fileB.LastWriteTime)     ? FileCompareFlags.LastWrite     : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.LastWriteUTC)  && 
+                   fileA.LastWriteTimeUtc  == fileB.LastWriteTimeUtc)  ? FileCompareFlags.LastWriteUTC  : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.Length)        && 
+                   fileA.Length            == fileB.Length)            ? FileCompareFlags.Length        : 0;
+    equalFlags |= (FlagIsSet(flags, FileCompareFlags.FullName)      && 
+                   fileA.FullName          == fileB.FullName)          ? FileCompareFlags.FullName      : 0;
+    return equalFlags;
+}
+</pre>
+
+<p>The methods above use the indicated flag(s) and compares the appropriate property for equality. 
+If a specified property is equal, its flag value is OR'd to an interim equality flags variable, and 
+eventually compared to the specified equality flags value. If the two equality flag values match, 
+then the file is considered "equal" to each other, and chaos ensues.</p>
+
+<p>The core code would essentially check the folder every X-number of minutes (the time would be 
+specified by the user), and would retrieve a list of ALL of the files/folders in the source folder, 
+compare them with the contents of the target folder, and copy anything new or changed into the 
+appropriate target folder/sub-folder.</p>
+
+<p>Even though the timing thread was needed in both apps, and that's where that code is, it makes 
+more sense to talk about it here.</p>
+
+<h3>The FileInfoList Object</h3>
+
+<p>This object represents a collection of FileInfoEx objects, and is responsible for the actual 
+synchronizing process, which begins by calling the <code>Update</code> method.  The first thing we 
+need to do is to build a list of files in the staging folder (<code>SyncFromPath</code>).</p>
+
+<pre>//--------------------------------------------------------------------------------
+public void Update(string path, bool incSubs)
+{
+    FileInfoList newList = new FileInfoList(m_syncFromPath, m_syncToPath);
+    newList.GetFiles(path, incSubs);
+</pre>
+
+<p>Then we find all of the files that need to be deleted by calling the <code>NewOrChanged</code> 
+method (Look! We're using LINQ!):</p>
+
+<pre>    var newerList = (from item in newList
+                     where NewOrChanged(item)
+                     select item).ToList();
+    newList.Clear();
+    this.Updates = newerList.Count;
+</pre>
+
+<p>Finally, we interate through the list of new/changed files, and backup (if necessary), delete the 
+file we're replacing, and finally copythe new version.</p>
+
+<pre>
+    foreach (FileInfoEx item in newerList)
+    {
+        bool backupFirst = false;
+        try
+        {
+            // build our file names
+            string sourceName = System.IO.Path.Combine(m_syncFromPath, item.FileName);
+            string targetName = System.IO.Path.Combine(m_syncToPath, item.FileName);
+
+            // assume the path hasn't been verified
+            bool pathVerified = false;
+
+            // if the target file already exists
+            if (File.Exists(targetName))
+            {
+                // back it up if necessary
+                if (backupFirst)
+                {
+                    // copy to backup folder
+                }
+
+                // delete it
+                File.Delete(targetName);
+
+                // since the file exists, the path must exist as well 
+                pathVerified = true;
+            }
+            if (!pathVerified)
+            {
+                VerifyPath(System.IO.Path.GetDirectoryName(targetName));
+            }
+            File.Copy(sourceName, targetName);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Exception encountered while updating files", ex);
+        }
+    }
+}
+</pre>
+
+<h3>The SyncSettings Object</h3>
+
+<p>Because I had two applications using the same settings, I figured it would be easier/convenient 
+to manually create a settings object, and this object is the result.  Instead of writing the entire 
+thing from scratch, I referred back to my earlier article here 
+(<a href="http://www.codeproject.com/KB/cs/SharedSettings.aspx">Share User Settings Between 
+Applications</a>[<a href="http://www.codeproject.com/KB/cs/SharedSettings.aspx" target="_blank" title="New Window">^</a>]), 
+and pulled out the AppSettingsBase class.  This class has a bunch of handy properties and methods 
+that have already been written, such as a method that creates the necessary application data folder:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+protected string CreateAppDataFolder(string folderName)
+{
+    string appDataPath = "";
+    string dataFilePath = "";
+
+    folderName = folderName.Trim();
+    if (folderName != "")
+    {
+        try
+        {
+            // Set the directory where the file will come from.  The folder name 
+            // returned will be different between XP and Vista. Under XP, the default 
+            // folder name is "C:\Documents and Settings\All Users\Application Data\[folderName]"
+            // while under Vista, the folder name is "C:\Program Data\[folderName]".
+            appDataPath = System.Environment.GetFolderPath(this.SpecialFolder);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+        if (folderName.Contains("\\"))
+        {
+            string[] path = folderName.Split('\\');
+            int folderCount = 0;
+            int folderIndex = -1;
+            for (int i = 0; i < path.Length; i++)
+            {
+                string folder = path[i];
+                if (folder != "")
+                {
+                    if (folderIndex == -1)
+                    {
+                        folderIndex = i;
+                    }
+                    folderCount++;
+                }
+            }
+            if (folderCount != 1)
+            {
+                throw new Exception("Invalid folder name specified (this function only creates the root app data folder for the application).");
+            }
+            folderName = path[folderIndex];
+        }
+    }
+    if (folderName == "")
+    {
+        throw new Exception("Processed folder name resulted in an empty string.");
+    }
+    try
+    {
+        dataFilePath = System.IO.Path.Combine(appDataPath, folderName);
+        if (!Directory.Exists(dataFilePath))
+        {
+            Directory.CreateDirectory(dataFilePath);
+        }
+    }
+    catch (Exception)
+    {
+        throw;
+    }
+    return dataFilePath;
+}
+</pre>
+
+<p>I then creating the SyncSettings class, inherited from AppSettingsBase, and added the methods 
+necessary to support my app-specific data.  First, I needed to provide a propertyu that could be 
+used to get/set the data from a XElement object:</p>
+
+<pre lang="cs">//................................................................................
+public override XElement XElement
+{
+    get
+    {
+        return new XElement(this.SettingsKeyName
+                            ,new XElement("SyncMinutes",     this.SyncMinutes.ToString())
+                            ,new XElement("NormalizeTime",   this.NormalizeTime.ToString())
+                            ,new XElement("UseHeuristics",   this.UseHeuristics.ToString())
+                            ,new XElement("HeuristicTime",   this.HeuristicTime.ToString())
+                            ,new XElement("HeuristicEvents", this.HeuristicEvents.ToString())
+                           );
+    }
+    set
+    {
+        if (value != null)
+        {
+            this.SyncMinutes     = value.GetValue("SyncMinutes",     5);
+            this.NormalizeTime   = value.GetValue("NormalizeTime",   true);
+            this.UseHeuristics   = value.GetValue("UseHeuristics",   true);
+            this.HeuristicTime   = value.GetValue("HeuristicTime",   30);
+            this.HeuristicEvents = value.GetValue("HeuristicEvents", 6);
+        }
+    }
+}</pre>
+
+<p>And then for the SyncItems collection:</p>
+
+<pre lang="cs">public SyncItemCollection SyncItems { get; set; }</pre>
+
+<p>Specified some constants:</p>
+
+<pre lang="cs">private	const string APP_DATA_FOLDER	= "PaddedwallSync";
+private const string APP_DATA_FILENAME	= "Settings.xml";
+private const string FILE_COMMENT		= "Synch Settings";
+private const string SETTINGS_KEYNAME   = "Settings";
+private const string SYNC_ITEMS_KEYNAME = "SyncItems";</pre>
+
+<p>Initialzed some base class properties in the derived class' constructor:</p>
+
+<pre lang="cs">public SyncSettings(XElement defaultSettings)
+       : base()
+{
+    this.SyncItems              = new SyncItemCollection();
+    this.SpecialFolder          = System.Environment.SpecialFolder.CommonApplicationData;
+    this.DefaultSettings		= defaultSettings;
+    this.IsDefault				= false;
+    this.FileName				= APP_DATA_FILENAME;
+    this.SettingsKeyName		= SETTINGS_KEYNAME;
+    this.SettingsFileComment	= FILE_COMMENT;
+    this.DataFilePath			= CreateAppDataFolder(APP_DATA_FOLDER);
+    this.FullyQualifiedPath     = System.IO.Path.Combine(this.DataFilePath, this.FileName);
+    ...
+}</pre>
+
+<p>And finally, I added appropriate <code>Load</code> and <code>Save</code> methods:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public override void Load()
+{
+    if (File.Exists(this.FullyQualifiedPath))
+    {
+        try
+        {
+            XDocument doc = XDocument.Load(this.FullyQualifiedPath);
+            XElement root = doc.Element("ROOT");
+            if (root != null)
+            {
+                XElement settings = root.Element(this.SettingsKeyName);
+                if (settings != null)
+                {
+                    this.XElement = settings;
+                }
+                if (SyncItems != null)
+                {
+                    this.SyncItems.Clear();
+                }
+                this.SyncItems = new SyncItemCollection(root.Element("SyncItems"));
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Exception encountered while loading settings file", ex);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------
+public override void Save()
+{
+    try
+    {
+        if (File.Exists(this.FullyQualifiedPath))
+        {
+            File.Delete(this.FullyQualifiedPath);
+        }
+        XDocument doc = new XDocument(new XDeclaration("1.0", "utf-8", "yes"), 
+                                      new XComment(this.SettingsFileComment));
+        XElement root = new XElement("ROOT");
+        root.Add(this.XElement);
+        root.Add(this.SyncItems.XElement);
+        doc.Add(root);
+        doc.Save(this.FullyQualifiedPath);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("Exception encountered while saving settings file", ex);
+    }
+}</pre>
+
+<h3>Other Extension Methods</h3>
+
+<p>I like extension methods. They allow you to extend classes that you don't have the source code 
+for, or that cannot be inherited.  For this application, I needed two such methods.  The first one 
+involves letting us compare two dateTime objects, but allows us to specify WHICH property (or 
+properties) we want to compare.  We ony need to compare minutes in this appication, and that would 
+be a simple thing to do without any additional code, but where's the fun in that? I;'ve already 
+posted a tip trick regarding this code ( 
+<a href="http://www.codeproject.com/Tips/148065/Partial-DateTime-Object-Equality.aspx">here</a>[<a href="http://www.codeproject.com/Tips/148065/Partial-DateTime-Object-Equality.aspx" target="_blank" title="New Window">^</a>]), 
+but since I hate clicking around to find stuff relating to an article, I figureed it would be worth 
+going through that code here. We begin by defining an enumerator with the Flags attribute so we 
+can set more than one enumerator at a time:</p>
+
+<pre lang="cs">
+[Flags]
+public enum DatePartFlags {Ticks       = 0, 
+                           Year        = 1, 
+                           Month       = 2, 
+                           Day         = 4, 
+                           Hour        = 8, 
+                           Minute      = 16, 
+                           Second      = 32, 
+                           Millisecond = 64 };</pre>
+
+<p>I used <code>Ticks</code> as the first ordinal so that if the programmer wanted to, he could 
+compare the entire <code>DateTime</code> without having to speciay all of the other attributes.  
+Next, I implemented a helper method to assist in determining whether or not a flag was set:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+private static bool FlagIsSet(DatePartFlags flags, DatePartFlags flag)
+{
+    bool isSet = ((flags & flag) == flag);
+    return isSet;
+}</pre>
+
+<p>Finally, I implemented the <code>Equal</code> method:</p>
+
+<pre lang="cs">//--------------------------------------------------------------------------------
+public static bool Equal(this DateTime now, DateTime then, DatePartFlags flags)
+{
+    bool isEqual = false;
+    if (flags == DatePartFlags.Ticks)
+    {
+        isEqual = (now == then);
+    }
+    else
+    {
+        DatePartFlags equalFlags = DatePartFlags.Ticks;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Year)         && 
+                       now.Year        == then.Year)        ? DatePartFlags.Year        : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Month)        && 
+                       now.Month       == then.Month)       ? DatePartFlags.Month       : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Day)          && 
+                       now.Day         == then.Day)         ? DatePartFlags.Day         : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Hour)         && 
+                       now.Hour        == then.Hour)        ? DatePartFlags.Hour        : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Minute)       && 
+                       now.Minute      == then.Minute)      ? DatePartFlags.Minute      : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Second)       && 
+                       now.Second      == then.Second)      ? DatePartFlags.Second      : 0;
+        equalFlags |= (FlagIsSet(flags, DatePartFlags.Millisecond)  && 
+                       now.Millisecond == then.Millisecond) ? DatePartFlags.Millisecond : 0;
+        isEqual = (flags == equalFlags);
+    }
+    return isEqual;
+}</pre>
+
+<p>To determine equality, we pass the desired flags and the DateTime object to be compared against. 
+In the method, we create a new flags enumerator, and proceed to check each property (indicated by 
+the passed-in enumerator), and apply matching flags as appropriate to the inner enumerator.  When 
+we're done comparied properties, we then compare the resulting inner flags enumerator against the 
+one that was passed it. If they're the same, then all of the appropriate properties are equal, and 
+we have a match!</p>
+
+<h2>SynchroWCF - The Communications Component</h2>
+
+<p>To enable communications between the console and service components, and the setup application, 
+and since all of these compoenents would exist on the same machine, I elected to use WFC with a 
+named pipe binding. I had two requirements - I wanted to instantiate the host and the client without 
+a config file, and I wanted to post events from the host so that the application instantiating it 
+could display the status messages send from the client.  The service itself is a very simple affair 
+because we only have two methods in it.  It's really a shame that WCF services don't support method 
+overloading (all method MUST have a unique name) - it would have presented a much cleaner 
+interface.</p>
+
+<pre lang="cs">//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+[ServiceContract]
+public interface ISynchroService
+{
+    [OperationContract]
+    void SendStatusMessage(string msg);
+
+    [OperationContract]
+    void SendStatusMessageEx(string msg, DateTime datetime);
+}</pre>
+
+<p>As far as the class itself is concerned, I had to do something that is out of the ordinary for your 
+typical vanilla WCF service.  Remember, I ddon't need to store anything being recieved by the 
+<code>ServiceHost</code> object, but I *DO* want to pass the data being recieved on to the application 
+hosting the service. In order to pull this off, I needed to beef up the <code>ServiceBehavior</code> 
+attribute by including the <code>InstanceContextMode</code> property. By setting this to 
+<code>Single<code>, I can send events from the ServiceHost.</p>
+
+<pre lang="cs">//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+[ServiceBehavior(InstanceContextMode=InstanceContextMode.Single, IncludeExceptionDetailInFaults=true)]
+public class SynchroService : ISynchroService
+{
+    public event SynchroHostEventHandler SynchroHostEvent = delegate { };
+
+    public SynchroService()
+    {
+    }
+
+    //--------------------------------------------------------------------------------
+    public void SendStatusMessage(string msg)
+    {
+        SynchroHostEvent(this, new SynchroHostEventArgs(msg, DateTime.Now));
+    }
+
+    //--------------------------------------------------------------------------------
+    public void SendStatusMessageEx(string msg, DateTime datetime)
+    {
+        SynchroHostEvent(this, new SynchroHostEventArgs(msg, datetime));
+    }
+}</pre>
+
+<p>In order to make this code usable as either a client or a host, I created the static 
+<code>SvcGlobals</code> object.  In that object, I provide methods to manipulate the 
+<code>ServiceHost</code> (for the server) and <code>ChannelFactory</code> (for the client) objects.</p>
+ 
+<p>I start off by defining some variables so that the resulting objects are singing out of the same 
+hymnal, so to speak.</p> 
+
+<pre lang="cs">public static class SvcGlobals
+{
+    private static NetNamedPipeBinding m_Binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
+    public  static Uri m_baseAddress = new Uri("net.pipe://localhost/SynchroService");
+</pre>
+
+<p>And follow that up with some initialization code in the constructor:</p>
+
+<pre lang="cs">    //--------------------------------------------------------------------------------
+    static SvcGlobals()
+    {
+        SvcHost = null;
+    }</pre>
+
+<p>Next, I wrote a couple of methods to instantiate and close the host:</p>
+
+<pre lang="cs">    //--------------------------------------------------------------------------------
+    public static bool CreateServiceHost()
+    {
+        bool available = (SvcHost != null);
+        if (SvcHost == null)
+        {
+            try
+            {
+                SynchroService svc = new SynchroService();
+                SvcHost = new ServiceHost(svc, m_baseAddress);
+                SvcHost.AddServiceEndpoint(typeof(ISynchroService), m_binding, "");
+                SvcHost.Open();
+                available = (SvcHost != null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Exception encountered while creating SvcHost", ex);
+            }
+        }
+        return available;
+    }
+
+    //--------------------------------------------------------------------------------
+    public static void CloseServiceHost()
+    {
+        try
+        {
+            if (SvcHost != null && SvcHost.State == CommunicationState.Opened)
+            {
+                SvcHost.Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Exception encountered while closing SvcHost", ex);
+        }
+    }</pre>
+
+<p>And finally, there are a couple of client-related methods:</p>
+
+<pre lang="cs">    //--------------------------------------------------------------------------------
+    public static bool CreateServiceClient()
+    {
+        bool available = (SvcClient != null);
+        if (SvcClient == null)
+        {
+            try
+            {
+                ChannelFactory<ISynchroService> factory = new ChannelFactory<ISynchroService>(m_binding, new EndpointAddress(m_baseAddress.AbsoluteUri));
+                SvcClient = factory.CreateChannel();
+                available = (SvcClient != null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Exception encountered while creating SvcClient", ex);
+            }
+        }
+        return available;
+    }
+
+    //--------------------------------------------------------------------------------
+    public static void ResetServiceClient()
+    {
+        SvcClient = null;
+    }</pre>
+
+<p>As you can see, implementing the WCF code was very low impact, and the only atypical coding 
+required was to support the events I wanted to send.</p>
+
+<h2>SynchroConfig - The System Tray App</h2>
+
+<p>This application allows the user to both configure and monitor the Windows service (or even the 
+test console application).  The main form looks like this:</p>
+
+<img />
+
+<p>The most prominent feature is the listbox, where all of the sttus message received from the Windows 
+service are displayed.  The buttons are for the following actions:</p>
+
+<p><b>Close</b> - Terminates the application</p>
+
+<p><b>Minimize</b> - Causes the application to be minimized to the system tray</p>
+
+<p><b>Configure</b> - Allows the user to configure the Windows service</p>
+
+<p><b>Start/Restart Service</b> - Starts (or restarts) the Windows service (if it's installed)</p>
+
+<p><b>Stop Service</b> - Stops the Windows service (if it's installed)</p>
+
+<p>The Start/Restart and Stop Service buttons will be disabled if the Windows service coponent is not 
+currently installed.</p>
+
+<h3>Configuration</h3>
+
+<p>When the user clicks the Configure button, the Configuration form is displayed:</p>
+
+<img />
+
+<p>This form allows the user to configure the basic settings, as well as add, edit, or delete sync items.</p>
+
+<h4>Path To InstallUtil.EXE</h4>
+
+To avoid having to deal with manually locating and running the InstallUtil program (provided with 
+the .Net Framework), this field allows you to specify it's location so that you can 
+install/uninstall the service from within this application. If you use the browse button on the 
+right side of the text box, you can browse to the appropriate location of the version of the 
+InstallUtil.EXE.  Typically, this is <code>C:\Windows\Miscrosoft.Net\Framework\XXX</code> where 
+"XXX" is the .Net version you have installed.
+
+<h4>Sync Minutes</h4>
+
+<p>This field represents the number of minutes between synchronization events.  The minimum possible 
+value is 5, and the maximum is 60.</p>
+
+<h4>Normalize Time</h4>
+
+<p>When the service starts its timing loop, it immediately runs a sync event, and then calculates 
+the next event time to be a point in the future equal to the current time plus whatever sync minutes 
+were specified. If this checkbox is checked, the service will - after the first sync event - attempt 
+to align subsequent sync events on even minutes of the hour. This makes the sync events more 
+predictable if you're sitting there watching the status messages.</p>
+
+<h4>Sync Items List</h4>
+
+<p>This control displays all of the currently specified sync items. While an unlimited number of sync 
+items can be displayed, you have to take note that the more you have, the longer it's likely to 
+process all of them, and the more memory the Windows service will consume while doing so.  The smart 
+play would be to specify no more than five on the machine, and when doing so, consider the number of 
+files that will be processed in order to complete a sync event.  In my case, I will only have one or 
+two sync items.</p>
+
+<h4>The Add Button</h4>
+
+<p>The Add button allows the user to add a new sync item to the list. The following form is displayed:</p>
+
+<img />
+
+<p>Since most of the fields are self-explanatory, I'll restrict this section to the more interesting 
+controls. First, we have the Sync item name. Notice that it's automatically populated for you. When 
+the form initializes, it comes up with its own default name by iterating through the existing names, 
+incrementing and appending a counter to "Sync Item " until it finds a name that doesn't already 
+exist in the list.  This keeps you from having to manually type something unique.</p>
+
+<p>The 2nd most interesting control is the label titled "Hover Here For Current List".  When you 
+hover your mouse over that label, a modeless form is displayed that contains a list of the current 
+names.  This allows you to either select one to use as a template for a new name, or just to see 
+what's already been specified so that you don't enter an identical name manually. See below:</p>
+
+<img />
+
+<h4>The Edit Button</h4>
+
+<p>This button allows you to edit the currently selected sync item in the sync item list. The form 
+is the same as the one used for the Add button, but initializes a little differently due to the fact 
+that the user is editing instead of adding a new item.</p>
+
+<h4>The Delete Button</h4>
+
+<p>This button allows the user to delete the currently selected sync item in the sync item list.</p>
+
+<h4>The Install Service Button</h4>
+
+<p>I don't know about you, but installing/uninstalling a Windows service is a pain in the butt, and 
+I hate doing it. This button allows the user to install the Windows service wihout having to use a 
+command window to do so. If the install attempt was successful, the button text will change to "Uninstall 
+Service". In order to install/uninstall the service with this button, you must have already specified the 
+location of the InstallUtil.EXE application.</p>
+
+<h2>SynchroConsole - The Test Program</h2>
+
+<p>This application is used to test/debug the core code, and if desired, can actually be used instead 
+of the Windows service. It provides a simple user interface that merely displays status messages as 
+it runs through its processing loop.  Since this is just a test console, I'll go ahead and provide a 
+screen shot, but won't bother going into the specifiecs of the application itself except to bring to 
+your attention a specific feature.</p>
+
+<img />
+
+<p>This app test not only the loop/synchronization code, but also the communications between the 
+service and the Confiuration application that lives in the system tray. The most visible way to 
+ensure that the WCF communications stuff is working is to take not of the upper right-hand corner of 
+the form.  If the WCF connection is made, a label will appear that reads "Connected". If the 
+application can't find the configuration application's service host, the label will read "Server Not 
+Found".</p>  
+
+<p>In addition, status messages will reflect the absence of a connection.  The console 
+application will attempt to reconnect at each sync event, so the user can turn the the configuration 
+appllictaion on and off at will with no ill effects on the console application.</p>
+
+<h2>SynchroService - The Windows Service</h2>
+
+<p>This service is the primary reason this article exists, and is intended to be installed on the 
+box on which the synchronization is desired, along with the configuration application (installing 
+the test console is optional).</p>
+
+<p>The Service is installed to start manually because it's likely that upon initial installation, 
+you won't have any sync items specified (and that's why I provided a method for the user to install 
+from the configuration application.  The service also installs as LocalSystem so that I can sync to 
+protected folders (such as Inetpub).  Here's a look at the Installer class's constructor:</p>
+
+<pre lang="cs">public SyncSvcInstaller()
+{
+    InitializeComponent();
+
+    try
+    {
+        // create and configure our installer and processinstaller objects
+        m_serviceInstaller = new ExtendedServiceInstaller();
+
+        // If you don't want the service to start automatically, change the 
+        // following line to whatever start mode is appropriate.
+        m_serviceInstaller.StartType = ServiceStartMode.Manual;
+
+        //TODO: Change these three items to more accurately reflect the service's purpose
+        m_serviceInstaller.DisplayName = "Synchronicity Service";
+        m_serviceInstaller.ServiceName = "Synchronicity Service";
+        m_serviceInstaller.Description = "Synchronizes files between specified folder pairs";
+
+        m_processInstaller         = new ServiceProcessInstaller();
+        m_processInstaller.Account = ServiceAccount.LocalSystem;
+
+        // add our installers to the list
+        this.Installers.Add(m_serviceInstaller);
+        this.Installers.Add(m_processInstaller);
+
+        // perform any other preparatory steps necessary to make your service 
+        // function properly.
+    }
+    catch (IndexOutOfRangeException oorEx)
+    {
+        Console.WriteLine(oorEx.Message);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+
+<p>Next, we want to look at the service itself.  There's really not that much too it since most of 
+the core code is located in other assemblies.  Of course, the most significant part of the service 
+centers around the thread that determines when to run a sync event.  The service class starts out 
+(as you might guess) with some declaration of necessary variables:</p>
+
+<pre></pre>
+
+<p></p>
+
+<pre></pre>
+
+<p></p>
+
+<pre></pre>
+
+<p></p>
+
+<pre></pre>
+
