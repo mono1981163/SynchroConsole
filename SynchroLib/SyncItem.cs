@@ -46,6 +46,7 @@ namespace SynchroLib
         public string ExcludeDirOrFile { get; set; }
         public string RunFile { get; set; }
         public bool ForceDownlaod { get; set; }
+        public string Pattern { get; set; }
 		public XElement XElement
 		{
 			get
@@ -65,6 +66,7 @@ namespace SynchroLib
                                               ,new XElement("ExcludeDirOrFile", this.ExcludeDirOrFile)
                                               ,new XElement("RunFile",          this.RunFile)
                                               ,new XElement("ForceDownload",    this.ForceDownlaod)
+                                              , new XElement("Pattern",         this.Pattern)
                                              );
 				return value;
 			}
@@ -85,6 +87,7 @@ namespace SynchroLib
                     this.DeletedDirOrFile = value.GetValue("DeletedDirOrFile", "");
                     this.ExcludeDirOrFile = value.GetValue("ExcludeDirOrFile", "");
                     this.RunFile          = value.GetValue("RunFile",          "");
+                    this.Pattern          = value.GetValue("Pattern",          "");
                 }
             }
 		}
@@ -141,6 +144,7 @@ namespace SynchroLib
             this.ExcludeDirOrFile = "";
             this.RunFile          = "";
             this.ForceDownlaod    = false;
+            this.Pattern          = "";
 		}
 
 		//--------------------------------------------------------------------------------
@@ -163,6 +167,7 @@ namespace SynchroLib
             this.ExcludeDirOrFile = "";
             this.RunFile          = "";
             this.ForceDownlaod    = false;
+            this.Pattern          = "";
 			Init();
 		}
 

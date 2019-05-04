@@ -46,6 +46,7 @@ namespace SynchroSetup
                     m_syncItem.ExcludeDirOrFile = this.textBoxExcludeFile.Text;
                     m_syncItem.RunFile          = this.textBoxRunFile.Text;
                     m_syncItem.ForceDownlaod    = this.checkBoxForceDownload.Checked;
+                    m_syncItem.Pattern          = this.textBoxPattern.Text;
                 }
                 return m_syncItem;
 			}
@@ -92,10 +93,11 @@ namespace SynchroSetup
 				this.checkBoxRemoveAfterSync.Checked  = item.DeleteAfterSync;
                 // Rui_Add
                 this.checkBoxMakeFilesWritable.Checked= item.Writable;
-                this.textBoxDeletedDirOrFile.Text            = item.DeletedDirOrFile;
-                this.textBoxExcludeFile.Text                 = item.ExcludeDirOrFile;
-                this.textBoxRunFile.Text                     = item.RunFile;
+                this.textBoxDeletedDirOrFile.Text     = item.DeletedDirOrFile;
+                this.textBoxExcludeFile.Text          = item.ExcludeDirOrFile;
+                this.textBoxRunFile.Text              = item.RunFile;
                 this.checkBoxForceDownload.Checked    = item.ForceDownlaod;
+                this.textBoxPattern.Text              = item.Pattern;
             }
         }
 
