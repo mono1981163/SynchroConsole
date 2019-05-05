@@ -66,7 +66,7 @@ namespace SynchroLib
                                               ,new XElement("ExcludeDirOrFile", this.ExcludeDirOrFile)
                                               ,new XElement("RunFile",          this.RunFile)
                                               ,new XElement("ForceDownload",    this.ForceDownlaod)
-                                              , new XElement("Pattern",         this.Pattern)
+                                              ,new XElement("Pattern",         this.Pattern)
                                              );
 				return value;
 			}

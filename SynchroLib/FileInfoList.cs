@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Windows.Forms;
 
 namespace SynchroLib
 {
@@ -123,29 +124,49 @@ namespace SynchroLib
 					// build our file names
 					string sourceName = System.IO.Path.Combine(SyncParent.SyncFromPath, item.FileName);
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
-                    if (this.SyncParent.ForceDownlaod)
-                    {
-                        File.Delete(targetName);
-                        File.Copy(sourceName, targetName);
-
-                    }
+                    
 					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))
                     {
                         bool isExist = false;
                         string[] exculdeFileList = this.SyncParent.ExcludeDirOrFile.Split(',');
-                        for (int i = 0; i < exculdeFileList.Length; i++)
+                        foreach (var exculdeDirOrFile in exculdeFileList)
                         {
-                            if (exculdeFileList[i].ToLower() == item.FileName.ToLower())
+                            if(Directory.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()) || File.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
                             {
-                                isExist = true;
-                                break;
+                                if (sourceName.ToLower().Contains(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
+                                {
+                                    isExist = true;
+                                    break;
+                                }
                             }
                         }
                         if (isExist)
                             continue;
                     }
-                    // assume the path hasn't been verified
+
+                    if (!this.SyncParent.Pattern.Equals(""))
+                    {
+                        bool isSkip = false;
+                        string[] extensionList = this.SyncParent.Pattern.Split(',');
+                        foreach (var extension in extensionList)
+                        {
+                            if(extension.ToLower() != item.FileName.ToLower().Split('.')[item.FileName.Split('.').Length - 1])
+                            {
+                                isSkip = true;
+                                break;
+                            }
+                        }
+                        if (isSkip)
+                            continue;
+                    }
+
                     if (this.SyncParent.ForceDownlaod)
+                    {
+                        Directory.Delete(SyncParent.SyncToPath, true);
+                        Directory.CreateDirectory(SyncParent.SyncToPath);
+                        File.Copy(sourceName, targetName);
+                    }
+                    else
                     {
                         bool pathVerified = false;
                         // if the target file already exists
@@ -176,42 +197,50 @@ namespace SynchroLib
                     // Rui add
                     if (this.SyncParent.Writable && File.Exists(targetName))
                         File.SetAttributes(targetName, FileAttributes.Normal);
-                    bool isDeleted = false;
                     if (!this.SyncParent.DeletedDirOrFile.Equals(""))
                     {
                         string[] deletedFileList = this.SyncParent.DeletedDirOrFile.Split(',');
-                        for(int i = 0; i < deletedFileList.Length;i++)
+                        foreach(var deletedDirOrFile in deletedFileList)
                         {
-                            string deletedFile = deletedFileList[i].ToLower();
-                            if (deletedFile == item.FileName.ToLower())
+                            string deletedFile = deletedDirOrFile.ToLower();
+                            if(Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)) || File.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
                             {
-                                isDeleted = true;
-                                //FileAttributes attr = File.GetAttributes(targetName);
-                                //if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                                //{
-                                  
-                                //}
-                                //else
-                                //{
+                                FileAttributes attr = File.GetAttributes(Path.Combine(SyncParent.SyncToPath, deletedFile));
+                                if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                                {
+                                    deletedDirList.Add(System.IO.Path.Combine(SyncParent.SyncToPath, deletedFile));
+                                }
+                                else if (deletedFile == item.FileName.ToLower())
+                                {
                                     File.Delete(targetName);
-                                //}
+                                }
                             }
                         }
                     }
-
-                    if (!isDeleted)
-                        Process.Start(targetName);
-				}
+                }
 				catch (Exception ex)
 				{
 					throw new Exception(string.Format("Exception encountered while update the file {0}", item.FileName), ex);
 				}
 			}
-            // Rui add
-            //if (File.Exists(deleteDirName))
-            //    File.Delete(deleteDirName);
 
-		}
+            // Rui add
+            if (deletedDirList.Count != 0)
+                foreach (var deletedFile in deletedDirList)
+                {
+                    if (Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
+                        Directory.Delete(Path.Combine(SyncParent.SyncToPath, deletedFile));
+                }
+            if (!this.SyncParent.RunFile.Equals(""))
+            {
+                string[] runEileList = this.SyncParent.RunFile.Split(',');
+                foreach (var runFile in runEileList)
+                {
+                    if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile).ToLower()))
+                        Process.Start(Path.Combine(SyncParent.SyncToPath, runFile).ToLower());
+                }
+            }
+        }
 
 		//--------------------------------------------------------------------------------
 		/// <summary>
