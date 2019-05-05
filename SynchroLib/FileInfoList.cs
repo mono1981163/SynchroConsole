@@ -116,155 +116,216 @@ namespace SynchroLib
 			newList.Clear();
 			this.Updates = newerList.Count;
             // Rui add
+            FileInfoList targetList = new FileInfoList(SyncParent.SyncFromPath, this.SyncParent.SyncToPath);
+            targetList.GetFiles(SyncParent.SyncToPath, incSubs);
+            var targetAllFileList = (from item in targetList
+                                     where NewOrChanged(item)
+                                     select item).ToList();
+            targetList.Clear();
+            if (SyncParent.Mirror)
+            {
+                foreach (FileInfoEx item in targetAllFileList)
+                {
+                    bool isFound = false;
+                    foreach(FileInfoEx file in newerList)
+                    {
+                        if (item.FileName == file.FileName)
+                        {
+                            isFound = true;
+                            break;
+                        }    
+                    }
+                    if(!isFound)
+                        File.Delete(Path.Combine(SyncParent.SyncToPath, item.FileName));
+                }
+            }
+            
             List<string> deletedDirList = new List<string>();
-			foreach (FileInfoEx item in newerList)
+            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+            foreach (FileInfoEx item in newerList)
 			{
 				try
 				{
 					// build our file names
 					string sourceName = System.IO.Path.Combine(SyncParent.SyncFromPath, item.FileName);
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
-                    
-					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))
-                    {
-                        bool isExist = false;
-                        string[] exculdeFileList = this.SyncParent.ExcludeDirOrFile.Split(',');
-                        foreach (var exculdeDirOrFile in exculdeFileList)
-                        {
-                            if(Directory.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()) || File.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
-                            {
-                                if (sourceName.ToLower().Contains(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
-                                {
-                                    isExist = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isExist)
+                    string tempFileName = Path.Combine(tempPath, item.FileName);
+
+					if(!this.SyncParent.ExcludeDirOrFile.Equals(""))   
+                        if (ExcludeDirOrFile(false, sourceName))
                             continue;
-                    }
 
                     if (!this.SyncParent.Pattern.Equals(""))
-                    {
-                        bool isSkip = false;
-                        string[] extensionList = this.SyncParent.Pattern.Split(',');
-                        foreach (var extension in extensionList)
-                        {
-                            if(extension.ToLower() != item.FileName.ToLower().Split('.')[item.FileName.Split('.').Length - 1])
-                            {
-                                isSkip = true;
-                                break;
-                            }
-                        }
-                        if (isSkip)
+                        if (Pattern(true, item.FileName))
                             continue;
-                    }
 
                     if (!this.SyncParent.FolderMapping.Equals(""))
+                        targetName = FolderMapping(sourceName, targetName);
+
+                    if(this.SyncParent.ForceDownlaod)
                     {
-                        string[] folderMappingList = this.SyncParent.FolderMapping.Split(',');
-                        foreach(var folderMapping in folderMappingList)
+                        if (this.SyncParent.ForceDownlaod)
                         {
-                            var source = folderMapping.Split(';')[0].Split('=')[1];
-                            var target = folderMapping.Split(';')[1].Split('=')[1];
-                            if (sourceName.ToLower().Contains(source.ToLower()))
-                            {
-                                StringBuilder builder = new StringBuilder(targetName);
-                                builder.Replace(source, target);
-                                targetName = builder.ToString();
-                            }
+                            Directory.Delete(SyncParent.SyncToPath, true);
+                            Directory.CreateDirectory(SyncParent.SyncToPath);
                         }
                     }
 
-                    if (this.SyncParent.ForceDownlaod)
+                    if (this.SyncParent.Lock)
                     {
-                        Directory.Delete(SyncParent.SyncToPath, true);
-                        Directory.CreateDirectory(SyncParent.SyncToPath);
-                        File.Copy(sourceName, targetName);
+                        if (!Directory.Exists(tempPath))
+                            Directory.CreateDirectory(tempPath);
+                        FileDeleteAndCopy(sourceName, tempFileName, false, item, true);
+                        FileDeleteAndCopy(tempFileName, targetName, false, item, false);
                     }
                     else
-                    {
-                        bool pathVerified = false;
-                        // if the target file already exists
-                        if (File.Exists(targetName))
-                        {
-                            // back it up if necessary
-                            if (SyncParent.BackupBeforeSync)
-                            {
-                                // copy to backup folder
-                                BackupFile(item, targetName);
-                            }
-                            // delete  the file we're replacing
-                            File.Delete(targetName);
-                            // since the file exists, the path must exist as well 
-                            pathVerified = true;
-                        }
-                        if (!pathVerified)
-                        {
-                            VerifyPath(System.IO.Path.GetDirectoryName(targetName));
-                        }
-                        File.Copy(sourceName, targetName);
-                        if (SyncParent.DeleteAfterSync)
-                        {
-                            File.Delete(sourceName);
-                        }
-                    }
-
-                    // Rui add
+                        FileDeleteAndCopy(sourceName, targetName, false, item, true);
+                    
                     if (this.SyncParent.Writable && File.Exists(targetName))
                         File.SetAttributes(targetName, FileAttributes.Normal);
+
                     if (!this.SyncParent.DeletedDirOrFile.Equals(""))
-                    {
-                        string[] deletedFileList = this.SyncParent.DeletedDirOrFile.Split(',');
-                        foreach(var deletedDirOrFile in deletedFileList)
-                        {
-                            string deletedFile = deletedDirOrFile.ToLower();
-                            if(Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)) || File.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
-                            {
-                                FileAttributes attr = File.GetAttributes(Path.Combine(SyncParent.SyncToPath, deletedFile));
-                                if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                                {
-                                    deletedDirList.Add(System.IO.Path.Combine(SyncParent.SyncToPath, deletedFile));
-                                }
-                                else if (deletedFile == item.FileName.ToLower())
-                                {
-                                    File.Delete(targetName);
-                                }
-                            }
-                        }
-                    }
+                        DeletedDirOrFile(targetName, item, deletedDirList);
                 }
 				catch (Exception ex)
 				{
 					throw new Exception(string.Format("Exception encountered while update the file {0}", item.FileName), ex);
 				}
 			}
-
-            // Rui add
+            
             if (deletedDirList.Count != 0)
-                foreach (var deletedFile in deletedDirList)
-                {
-                    if (Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
-                        Directory.Delete(Path.Combine(SyncParent.SyncToPath, deletedFile));
-                }
+                DeleteDirectory(deletedDirList);
+              
             if (!this.SyncParent.RunFile.Equals(""))
+                RunFiles(this.SyncParent.RunFile);
+        }
+        // << Rui add
+        private bool ExcludeDirOrFile(bool isExist, string sourceName)
+        {
+            string[] exculdeFileList = this.SyncParent.ExcludeDirOrFile.Split(',');
+            foreach (var exculdeDirOrFile in exculdeFileList)
             {
-                string[] runEileList = this.SyncParent.RunFile.Split(',');
-                foreach (var runFile in runEileList)
+                if (Directory.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()) || File.Exists(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
                 {
-                    if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile).ToLower()))
-                        Process.Start(Path.Combine(SyncParent.SyncToPath, runFile).ToLower());
+                    if (sourceName.ToLower().Contains(Path.Combine(SyncParent.SyncFromPath, exculdeDirOrFile).ToLower()))
+                    {
+                        isExist = true;
+                        break;
+                    }
+                }
+            }
+            return isExist;
+        }
+
+        private bool Pattern(bool isSkip, string fileName)
+        {
+            string[] extensionList = this.SyncParent.Pattern.Split(',');
+            foreach (var extension in extensionList)
+            {
+                if (extension.ToLower() == fileName.ToLower().Split('.')[fileName.Split('.').Length - 1])
+                {
+                    isSkip = false;
+                    break;
+                }
+            }
+            return isSkip;
+        }
+
+        private string FolderMapping(string sourceName, string targetName)
+        {
+            string[] folderMappingList = this.SyncParent.FolderMapping.Split(',');
+            foreach (var folderMapping in folderMappingList)
+            {
+                var source = folderMapping.Split(';')[0].Split('=')[1];
+                var target = folderMapping.Split(';')[1].Split('=')[1];
+                if (sourceName.ToLower().Contains(source.ToLower()))
+                {
+                    StringBuilder builder = new StringBuilder(targetName);
+                    builder.Replace(source, target);
+                    targetName = builder.ToString();
+                }
+            }
+            return targetName;
+        }
+
+        private void DeleteDirectory(List<string> deletedDirList)
+        {
+            foreach (var deletedFile in deletedDirList)
+            {
+                if (Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
+                    Directory.Delete(Path.Combine(SyncParent.SyncToPath, deletedFile));
+            }
+        }
+
+        private void RunFiles(string RunFile)
+        {
+            string[] RunFileList = RunFile.Split(',');
+            foreach (var runFile in RunFileList)
+            {
+                if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile).ToLower()))
+                    Process.Start(Path.Combine(SyncParent.SyncToPath, runFile).ToLower());
+            }
+        }
+
+        private void DeletedDirOrFile(string targetName, FileInfoEx item, List<string> deletedDirList)
+        {
+            string[] deletedFileList = this.SyncParent.DeletedDirOrFile.Split(',');
+            foreach (var deletedDirOrFile in deletedFileList)
+            {
+                string deletedFile = deletedDirOrFile.ToLower();
+                if (Directory.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)) || File.Exists(Path.Combine(SyncParent.SyncToPath, deletedFile)))
+                {
+                    FileAttributes attr = File.GetAttributes(Path.Combine(SyncParent.SyncToPath, deletedFile));
+                    if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                    {
+                        deletedDirList.Add(System.IO.Path.Combine(SyncParent.SyncToPath, deletedFile));
+                    }
+                    else if (deletedFile == item.FileName.ToLower())
+                    {
+                        File.Delete(targetName);
+                    }
                 }
             }
         }
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Verifies that the path we need in the TO folder already exists. If it doesn't, 
-		/// we build it one sub-folder at a time.
-		/// </summary>
-		/// <param name="path"></param>
-		private void VerifyPath(string path)
+        private void FileDeleteAndCopy(string sourceName, string targetName, bool pathVerified, FileInfoEx item, bool copyFlag)
+        {
+            if (File.Exists(targetName))
+            {
+                // back it up if necessary
+                if (SyncParent.BackupBeforeSync)
+                {
+                    // copy to backup folder
+                    BackupFile(item, targetName);
+                }
+                // delete  the file we're replacing
+                File.Delete(targetName);
+                // since the file exists, the path must exist as well 
+                pathVerified = true;
+            }
+            if (!pathVerified)
+            {
+                VerifyPath(System.IO.Path.GetDirectoryName(targetName));
+            }
+            if (copyFlag)
+                File.Copy(sourceName, targetName);
+            else
+                File.Move(sourceName, targetName);
+            if (SyncParent.DeleteAfterSync)
+            {
+                File.Delete(sourceName);
+            }
+        }
+        // >>
+
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Verifies that the path we need in the TO folder already exists. If it doesn't, 
+        /// we build it one sub-folder at a time.
+        /// </summary>
+        /// <param name="path"></param>
+        private void VerifyPath(string path)
 		{
 			string   pathSoFar = "";
 			try

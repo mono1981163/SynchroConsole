@@ -49,6 +49,7 @@ namespace SynchroLib
         public string Pattern { get; set; }
         public bool Mirror { get; set; }
         public string FolderMapping { get; set; }
+        public bool Lock { get; set; }
 		public XElement XElement
 		{
 			get
@@ -71,6 +72,7 @@ namespace SynchroLib
                                               ,new XElement("Pattern",          this.Pattern)
                                               ,new XElement("Mirror" ,          this.Mirror)
                                               ,new XElement("FolderMapping",    this.FolderMapping)
+                                              ,new XElement("Lock",             this.Lock)
                                              );
 				return value;
 			}
@@ -94,6 +96,7 @@ namespace SynchroLib
                     this.Pattern          = value.GetValue("Pattern",          "");
                     this.Mirror           = value.GetValue("Mirror",           false);
                     this.FolderMapping    = value.GetValue("FolderMapping",    "");
+                    this.Lock             = value.GetValue("Lock",             false);
                 }
             }
 		}
@@ -153,6 +156,7 @@ namespace SynchroLib
             this.Pattern          = "";
             this.Mirror           = false;
             this.FolderMapping    = "";
+            this.Lock             = false;
 		}
 
 		//--------------------------------------------------------------------------------
@@ -178,6 +182,7 @@ namespace SynchroLib
             this.Pattern          = "";
             this.Mirror           = false;
             this.FolderMapping    = "";
+            this.Lock             = false;
 			Init();
 		}
 
