@@ -77,6 +77,12 @@
     <Compile Include="FormExistingNames.Designer.cs">
       <DependentUpon>FormExistingNames.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormFileStateSet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormFileStateSet.Designer.cs">
+      <DependentUpon>FormFileStateSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMainSetup.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +100,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormExistingNames.resx">
       <DependentUpon>FormExistingNames.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormFileStateSet.resx">
+      <DependentUpon>FormFileStateSet.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormMainSetup.resx">
       <DependentUpon>FormMainSetup.cs</DependentUpon>

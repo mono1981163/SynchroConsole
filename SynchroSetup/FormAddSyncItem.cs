@@ -352,5 +352,12 @@ namespace SynchroSetup
 			m_formExistingNames.Close();
 		}
 
-	}
+        private void btnChangeFileState_Click(object sender, EventArgs e)
+        {
+            Globals.SourceDirectoryPath = textBoxSyncFrom.Text;
+            Globals.TargetDirectoryPath = textBoxSyncTo.Text;
+            FormFileStateSet form = new FormFileStateSet();
+            form.ShowDialog();
+        }
+    }
 }

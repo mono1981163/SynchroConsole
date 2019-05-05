@@ -61,6 +61,11 @@
             this.label11 = new System.Windows.Forms.Label();
             this.textBoxFolderMapping = new System.Windows.Forms.TextBox();
             this.checkBoxMirror = new System.Windows.Forms.CheckBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.textBoxState = new System.Windows.Forms.TextBox();
+            this.textBoxInvalidState = new System.Windows.Forms.TextBox();
+            this.btnChangeFileState = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -271,7 +276,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(14, 245);
+            this.label6.Location = new System.Drawing.Point(15, 244);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(67, 13);
             this.label6.TabIndex = 9;
@@ -287,7 +292,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(14, 270);
+            this.label7.Location = new System.Drawing.Point(13, 271);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(138, 13);
             this.label7.TabIndex = 19;
@@ -304,7 +309,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(14, 296);
+            this.label8.Location = new System.Drawing.Point(12, 296);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(113, 13);
             this.label8.TabIndex = 21;
@@ -330,7 +335,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(14, 372);
+            this.label9.Location = new System.Drawing.Point(12, 375);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 13);
             this.label9.TabIndex = 9;
@@ -346,7 +351,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(14, 422);
+            this.label11.Location = new System.Drawing.Point(13, 424);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(80, 13);
             this.label11.TabIndex = 9;
@@ -354,7 +359,7 @@
             // 
             // textBoxFolderMapping
             // 
-            this.textBoxFolderMapping.Location = new System.Drawing.Point(137, 419);
+            this.textBoxFolderMapping.Location = new System.Drawing.Point(137, 421);
             this.textBoxFolderMapping.Name = "textBoxFolderMapping";
             this.textBoxFolderMapping.Size = new System.Drawing.Size(341, 20);
             this.textBoxFolderMapping.TabIndex = 10;
@@ -362,18 +367,65 @@
             // checkBoxMirror
             // 
             this.checkBoxMirror.AutoSize = true;
-            this.checkBoxMirror.Location = new System.Drawing.Point(16, 397);
+            this.checkBoxMirror.Location = new System.Drawing.Point(15, 398);
             this.checkBoxMirror.Name = "checkBoxMirror";
             this.checkBoxMirror.Size = new System.Drawing.Size(52, 17);
             this.checkBoxMirror.TabIndex = 23;
             this.checkBoxMirror.Text = "Mirror";
             this.checkBoxMirror.UseVisualStyleBackColor = true;
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(13, 451);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(100, 13);
+            this.label10.TabIndex = 24;
+            this.label10.Text = "States to Downlaod";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(15, 477);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(71, 13);
+            this.label12.TabIndex = 25;
+            this.label12.Text = "Invalid States";
+            // 
+            // textBoxState
+            // 
+            this.textBoxState.Location = new System.Drawing.Point(137, 448);
+            this.textBoxState.Name = "textBoxState";
+            this.textBoxState.Size = new System.Drawing.Size(340, 20);
+            this.textBoxState.TabIndex = 26;
+            // 
+            // textBoxInvalidState
+            // 
+            this.textBoxInvalidState.Location = new System.Drawing.Point(137, 474);
+            this.textBoxInvalidState.Name = "textBoxInvalidState";
+            this.textBoxInvalidState.Size = new System.Drawing.Size(340, 20);
+            this.textBoxInvalidState.TabIndex = 27;
+            // 
+            // btnChangeFileState
+            // 
+            this.btnChangeFileState.Location = new System.Drawing.Point(38, 528);
+            this.btnChangeFileState.Name = "btnChangeFileState";
+            this.btnChangeFileState.Size = new System.Drawing.Size(93, 23);
+            this.btnChangeFileState.TabIndex = 28;
+            this.btnChangeFileState.Text = "Change state";
+            this.btnChangeFileState.UseVisualStyleBackColor = true;
+            this.btnChangeFileState.Click += new System.EventHandler(this.btnChangeFileState_Click);
+            // 
             // FormAddSyncItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(528, 563);
+            this.Controls.Add(this.btnChangeFileState);
+            this.Controls.Add(this.textBoxInvalidState);
+            this.Controls.Add(this.textBoxState);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.checkBoxMirror);
             this.Controls.Add(this.checkBoxForceDownload);
             this.Controls.Add(this.textBoxRunFile);
@@ -457,5 +509,10 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TextBox textBoxFolderMapping;
         private System.Windows.Forms.CheckBox checkBoxMirror;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox textBoxState;
+        private System.Windows.Forms.TextBox textBoxInvalidState;
+        private System.Windows.Forms.Button btnChangeFileState;
     }
 }

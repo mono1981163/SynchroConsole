@@ -23,8 +23,10 @@ namespace SynchroSetup
 		private static string            m_serviceName    = "Synchronicity Service";
 		public  static ServiceController SynchroService { get; set; }
 		public  static Process           StarterProcess { get; set; }
-
-		static Globals()
+        // Rui add
+        public  static string SourceDirectoryPath { get; set; }
+        public  static string TargetDirectoryPath { get; set; }
+        static Globals()
 		{
 			string appToRun = Application.ExecutablePath;
 			appToRun = appToRun.Replace(System.IO.Path.GetFileName(appToRun), "SynchroServiceStarter.exe");

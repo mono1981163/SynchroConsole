@@ -6,19 +6,22 @@ using System.Text;
 
 namespace SynchroLib
 {
-	//////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////
-	/// <summary>
-	/// We need something more than just the FileInfo class because we have to strip 
-	/// off the root folder of the file in order to perform some coparisons in other 
-	/// places. Normally, I would just derive from the object in question, but the 
-	/// FileInfo class is sealed.  Isn't that convenient?
-	/// </summary>
-	public class FileInfoEx
+    public enum FileStates { Release, WorkInProcess, Init }
+    //////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// We need something more than just the FileInfo class because we have to strip 
+    /// off the root folder of the file in order to perform some coparisons in other 
+    /// places. Normally, I would just derive from the object in question, but the 
+    /// FileInfo class is sealed.  Isn't that convenient?
+    /// </summary>
+    public class FileInfoEx
 	{
 		public FileInfo FileInfoObj { get; set; }
 		public string   FileName    { get; set; }
 		public bool     IsDeleted   { get; set; }
+        public int FileState { get; set; }
+
 
 		//--------------------------------------------------------------------------------
 		/// <summary>
@@ -30,6 +33,7 @@ namespace SynchroLib
 			FileInfoObj = info;
 			IsDeleted   = false;
 			FileName    = FileInfoObj.FullName;
+            FileState = (int)FileStates.Release;
 		}
 
 		//--------------------------------------------------------------------------------
