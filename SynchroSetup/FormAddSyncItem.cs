@@ -47,6 +47,8 @@ namespace SynchroSetup
                     m_syncItem.RunFile          = this.textBoxRunFile.Text;
                     m_syncItem.ForceDownlaod    = this.checkBoxForceDownload.Checked;
                     m_syncItem.Pattern          = this.textBoxPattern.Text;
+                    m_syncItem.Mirror           = this.checkBoxMirror.Checked;
+                    m_syncItem.FolderMapping    = this.textBoxFolderMapping.Text;
                 }
                 return m_syncItem;
 			}
@@ -98,6 +100,8 @@ namespace SynchroSetup
                 this.textBoxRunFile.Text              = item.RunFile;
                 this.checkBoxForceDownload.Checked    = item.ForceDownlaod;
                 this.textBoxPattern.Text              = item.Pattern;
+                this.checkBoxMirror.Checked           = item.Mirror;
+                this.textBoxFolderMapping.Text        = item.FolderMapping;
             }
         }
 

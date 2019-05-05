@@ -160,6 +160,22 @@ namespace SynchroLib
                             continue;
                     }
 
+                    if (!this.SyncParent.FolderMapping.Equals(""))
+                    {
+                        string[] folderMappingList = this.SyncParent.FolderMapping.Split(',');
+                        foreach(var folderMapping in folderMappingList)
+                        {
+                            var source = folderMapping.Split(';')[0].Split('=')[1];
+                            var target = folderMapping.Split(';')[1].Split('=')[1];
+                            if (sourceName.ToLower().Contains(source.ToLower()))
+                            {
+                                StringBuilder builder = new StringBuilder(targetName);
+                                builder.Replace(source, target);
+                                targetName = builder.ToString();
+                            }
+                        }
+                    }
+
                     if (this.SyncParent.ForceDownlaod)
                     {
                         Directory.Delete(SyncParent.SyncToPath, true);

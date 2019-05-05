@@ -47,6 +47,8 @@ namespace SynchroLib
         public string RunFile { get; set; }
         public bool ForceDownlaod { get; set; }
         public string Pattern { get; set; }
+        public bool Mirror { get; set; }
+        public string FolderMapping { get; set; }
 		public XElement XElement
 		{
 			get
@@ -66,7 +68,9 @@ namespace SynchroLib
                                               ,new XElement("ExcludeDirOrFile", this.ExcludeDirOrFile)
                                               ,new XElement("RunFile",          this.RunFile)
                                               ,new XElement("ForceDownload",    this.ForceDownlaod)
-                                              ,new XElement("Pattern",         this.Pattern)
+                                              ,new XElement("Pattern",          this.Pattern)
+                                              ,new XElement("Mirror" ,          this.Mirror)
+                                              ,new XElement("FolderMapping",    this.FolderMapping)
                                              );
 				return value;
 			}
@@ -88,6 +92,8 @@ namespace SynchroLib
                     this.ExcludeDirOrFile = value.GetValue("ExcludeDirOrFile", "");
                     this.RunFile          = value.GetValue("RunFile",          "");
                     this.Pattern          = value.GetValue("Pattern",          "");
+                    this.Mirror           = value.GetValue("Mirror",           false);
+                    this.FolderMapping    = value.GetValue("FolderMapping",    "");
                 }
             }
 		}
@@ -145,6 +151,8 @@ namespace SynchroLib
             this.RunFile          = "";
             this.ForceDownlaod    = false;
             this.Pattern          = "";
+            this.Mirror           = false;
+            this.FolderMapping    = "";
 		}
 
 		//--------------------------------------------------------------------------------
@@ -168,6 +176,8 @@ namespace SynchroLib
             this.RunFile          = "";
             this.ForceDownlaod    = false;
             this.Pattern          = "";
+            this.Mirror           = false;
+            this.FolderMapping    = "";
 			Init();
 		}
 
