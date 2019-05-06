@@ -33,43 +33,30 @@ namespace SynchroSetup
 
                 foreach(FileInfoEx file in newList)
                 {
-                    CheckBox ckBox = new CheckBox();
-                    List<CheckBox> checkBoxFileState = new List<CheckBox>();
-                    //for (int i = 0; i < 3; i++)
-                    //    if (i == file.FileState)
-                    //        checkBoxFileState[i].Checked = true;
-                    dataGridView1.Rows.Add(file.FileInfoObj.FullName, ckBox, ckBox, ckBox);
+                    GroupBox groupBox = new GroupBox();
+                    groupBox.FlatStyle = FlatStyle.Standard;
 
-                    //DataGridViewCheckBoxColumn filePath = new DataGridViewCheckBoxColumn();
-                    //filePath.HeaderText = file.FileName;
-                    //dataGridView1.Columns.Add(filePath);
+                    Label labelFilePath = new Label();
+                    labelFilePath.Width = 200;
+                    labelFilePath.Text = file.FileInfoObj.FullName;
 
-                    //DataGridViewCheckBoxColumn checkRelease = new DataGridViewCheckBoxColumn();
-                    //checkRelease.ValueType = typeof(bool);
-                    //checkRelease.Name = "CheckRelease";
-                    //checkRelease.HeaderText = "Release";
-                    //dataGridView1.Columns.Add(checkRelease);
-
-                    //DataGridViewCheckBoxColumn checkWork = new DataGridViewCheckBoxColumn();
-                    //checkWork.ValueType = typeof(bool);
-                    //checkWork.Name = "CheckWork";
-                    //checkWork.HeaderText = "Work";
-                    //dataGridView1.Columns.Add(checkWork);
-
-                    //DataGridViewCheckBoxColumn checkInit = new DataGridViewCheckBoxColumn();
-                    //checkInit.ValueType = typeof(bool);
-                    //checkInit.Name = "CheckInit";
-                    //checkInit.HeaderText = "Init";
-                    //dataGridView1.Columns.Add(checkInit);
-
-                    //ListViewItem fileStateItem = new ListViewItem();
-                    //fileStateItem.Text = file.FileInfoObj.FullName;
-                    ////fileStateItem.SubItems.Add(file.FileInfoObj.FullName);
-                    //fileStateItem.SubItems.Add("R");
-                    //fileStateItem.Checked = true;
-                    //fileStateItem.SubItems.Add("W");
-                    //fileStateItem.SubItems.Add("I");
-                    //listViewFileState.Items.Add(fileStateItem);
+                    RadioButton rbRelease = new RadioButton();
+                    rbRelease.Text = "Release";
+                    RadioButton rbWork = new RadioButton();
+                    rbWork.Text = "Work";
+                    RadioButton rbInit = new RadioButton();
+                    rbInit.Text = "Init";
+                 
+                    groupBox.Width = 500;
+                    rbRelease.Margin = new Padding(250, 30, 0, 0);
+                    rbWork.Margin = new Padding(320, 30, 0, 0);
+                    rbInit.Margin = new Padding(350, 30, 0, 0);
+                    groupBox.Controls.Add(labelFilePath);
+                    groupBox.Controls.Add(rbRelease);
+                    groupBox.Controls.Add(rbWork);
+                    groupBox.Controls.Add(rbInit);
+                    
+                    flowLayoutPanel.Controls.Add(groupBox);
                 }
                 
             }

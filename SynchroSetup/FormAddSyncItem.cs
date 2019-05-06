@@ -50,6 +50,8 @@ namespace SynchroSetup
                     m_syncItem.Mirror           = this.checkBoxMirror.Checked;
                     m_syncItem.FolderMapping    = this.textBoxFolderMapping.Text;
                     m_syncItem.Lock             = this.checkBoxLck.Checked;
+                    m_syncItem.State            = this.textBoxState.Text;
+                    m_syncItem.IgnoreState      = this.textBoxInvalidState.Text;
                 }
                 return m_syncItem;
 			}
@@ -104,6 +106,8 @@ namespace SynchroSetup
                 this.checkBoxMirror.Checked           = item.Mirror;
                 this.textBoxFolderMapping.Text        = item.FolderMapping;
                 this.checkBoxLck.Checked              = item.Lock;
+                this.textBoxState.Text                = item.State;
+                this.textBoxInvalidState.Text         = item.IgnoreState;
             }
         }
 

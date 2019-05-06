@@ -159,9 +159,17 @@ namespace SynchroLib
                         if (Pattern(true, item.FileName))
                             continue;
 
+                    if (!this.SyncParent.State.Equals(""))
+                        if (!GetFileState(this.SyncParent.State.Split(','), item.FileState, false))
+                            continue;
+
+                    if (!this.SyncParent.IgnoreState.Equals(""))
+                        if (GetFileState(this.SyncParent.IgnoreState.Split(','), item.FileState, false))
+                            continue;
+                    
                     if (!this.SyncParent.FolderMapping.Equals(""))
                         targetName = FolderMapping(sourceName, targetName);
-
+                    
                     if(this.SyncParent.ForceDownlaod)
                     {
                         if (this.SyncParent.ForceDownlaod)
@@ -200,6 +208,32 @@ namespace SynchroLib
                 RunFiles(this.SyncParent.RunFile);
         }
         // << Rui add
+        private bool GetFileState(string[] fileState, int fileStateValue, bool isFound) {
+            foreach (var state in fileState)
+            {
+                int stateValue = -1;
+                switch (state.ToLower())
+                {
+                    case "release":
+                        stateValue = 0;
+                        break;
+                    case "work":
+                        stateValue = 1;
+                        break;
+                    case "init":
+                        stateValue = 2;
+                        break;
+                    default:
+                        break;
+                }
+                if (fileStateValue == stateValue)
+                {
+                    isFound = true;
+                    break;
+                }
+            }
+            return isFound;
+        }
         private bool ExcludeDirOrFile(bool isExist, string sourceName)
         {
             string[] exculdeFileList = this.SyncParent.ExcludeDirOrFile.Split(',');
