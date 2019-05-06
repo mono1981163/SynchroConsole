@@ -1,4 +1,5 @@
-﻿using SynchroLib;
+﻿using Newtonsoft.Json.Linq;
+using SynchroLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -46,11 +47,10 @@ namespace SynchroSetup
                     var lvItem = new ListViewItem(file.FileName);
                     lvItem.SubItems.Add(((FileStates)(file.FileState)).ToString());
 
-                    this.listViewMain.Items.Add(lvItem);
+                    this.listViewMain.Items.Insert(0, lvItem);
 
                     row++;
                 }
-
             }
 
             this.ResumeLayout();
@@ -66,11 +66,20 @@ namespace SynchroSetup
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            var filestates = new JObject();
+            foreach (ListViewItem item in listViewMain.Items)
+            {
+                filestates.Add(item.Text, item.SubItems[1].Text);
+            }
+            SyncParent.FileStates = filestates.ToString();
+
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
     }

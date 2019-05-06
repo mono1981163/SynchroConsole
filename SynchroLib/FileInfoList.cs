@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json.Linq;
 
 namespace SynchroLib
 { 
@@ -142,10 +143,21 @@ namespace SynchroLib
             List<string> deletedDirList = new List<string>();
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
+            // parse FileStates
+            JObject filestates = null;
+            if (!this.SyncParent.FileStates.Equals(""))
+            {
+                filestates = JObject.Parse(this.SyncParent.FileStates);
+            }
             foreach (FileInfoEx item in newerList)
 			{
 				try
 				{
+                    item.FileState = (int)FileStates.Release;
+                    if (filestates != null && filestates[item.FileName] != null)
+                    {
+                        item.FileState = (int)Enum.Parse(typeof(FileStates), filestates[item.FileName].ToString());
+                    }
 					// build our file names
 					string sourceName = System.IO.Path.Combine(SyncParent.SyncFromPath, item.FileName);
 					string targetName = System.IO.Path.Combine(SyncParent.SyncToPath, item.FileName);
@@ -159,7 +171,7 @@ namespace SynchroLib
                         if (Pattern(true, item.FileName))
                             continue;
 
-                    if (!this.SyncParent.State.Equals(""))
+                    if (!this.SyncParent.State.Equals("") /*&& !this.SyncParent.FileStates.Equals("")*/)
                         if (!GetFileState(this.SyncParent.State.Split(','), item.FileState, false))
                             continue;
 
@@ -296,8 +308,8 @@ namespace SynchroLib
             string[] RunFileList = RunFile.Split(',');
             foreach (var runFile in RunFileList)
             {
-                if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile).ToLower()))
-                    Process.Start(Path.Combine(SyncParent.SyncToPath, runFile).ToLower());
+                if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile)))
+                    Process.Start(Path.Combine(SyncParent.SyncToPath, runFile));
             }
         }
 

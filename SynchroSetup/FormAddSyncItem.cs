@@ -360,7 +360,9 @@ namespace SynchroSetup
         {
             Globals.SourceDirectoryPath = textBoxSyncFrom.Text;
             Globals.TargetDirectoryPath = textBoxSyncTo.Text;
+
             FormFileStateSet form = new FormFileStateSet();
+            form.SyncParent = SyncItem;
             form.ShowDialog();
         }
     }

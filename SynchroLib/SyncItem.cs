@@ -52,6 +52,7 @@ namespace SynchroLib
         public bool Lock { get; set; }
         public string State { get; set; }
         public string IgnoreState { get; set; }
+        public string FileStates { get; set; }
 		public XElement XElement
 		{
 			get
@@ -77,6 +78,7 @@ namespace SynchroLib
                                               ,new XElement("Lock",             this.Lock)
                                               ,new XElement("State",            this.State)
                                               ,new XElement("IgnoreState",      this.IgnoreState)
+                                              ,new XElement("FileStates",       this.FileStates)
                                              );
 				return value;
 			}
@@ -103,6 +105,7 @@ namespace SynchroLib
                     this.Lock             = value.GetValue("Lock",             false);
                     this.State            = value.GetValue("State",            "");
                     this.IgnoreState      = value.GetValue("IgnoreState",      "");
+                    this.FileStates       = value.GetValue("FileStates",       "");
                 }
             }
 		}
@@ -165,6 +168,7 @@ namespace SynchroLib
             this.Lock             = false;
             this.State            = "";
             this.IgnoreState      = "";
+            this.FileStates       = "";
 		}
 
 		//--------------------------------------------------------------------------------
@@ -193,7 +197,8 @@ namespace SynchroLib
             this.Lock             = false;
             this.State            = "";
             this.IgnoreState      = "";
-			Init();
+            this.FileStates       = "";
+            Init();
 		}
 
 		//--------------------------------------------------------------------------------
