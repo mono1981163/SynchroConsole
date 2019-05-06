@@ -33,7 +33,7 @@ namespace SynchroLib
 			FileInfoObj = info;
 			IsDeleted   = false;
 			FileName    = FileInfoObj.FullName;
-            FileState = (int)FileStates.WorkInProcess;
+            FileState = (int)FileStates.Release;
 		}
 
 		//--------------------------------------------------------------------------------

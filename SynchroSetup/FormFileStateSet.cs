@@ -1,6 +1,7 @@
 ﻿using SynchroLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -15,52 +16,62 @@ namespace SynchroSetup
         FileInfoList newList;
         List<FileInfoEx> newerList;
         public SyncItem SyncParent { get; set; }
+
         
+
         protected FileCompareFlags m_compareFlags = FileCompareFlags.UnrootedName |
                                                     FileCompareFlags.LastWrite |
                                                     FileCompareFlags.Length;
         public FormFileStateSet()
         {
             InitializeComponent();
-        }
 
-        private void FormFileStateSet_Load(object sender, EventArgs e)
-        {
-            if(Globals.SourceDirectoryPath != null && Globals.TargetDirectoryPath != null)
+            this.SuspendLayout();
+
+            // Create data for combobox
+            StringCollection grades = new StringCollection();
+            grades.AddRange(new string[] { FileStates.Init.ToString(), FileStates.WorkInProcess.ToString(), FileStates.Release.ToString() });
+
+            // Set the combobox
+            this.listViewMain.AddComboBoxCell(-1, 1, grades);
+
+            if (Globals.SourceDirectoryPath != null && Globals.TargetDirectoryPath != null)
             {
                 newList = new FileInfoList(Globals.SourceDirectoryPath, Globals.TargetDirectoryPath);
                 newList.GetFiles(Globals.SourceDirectoryPath, true);
 
-                foreach(FileInfoEx file in newList)
+                var row = 0;
+                foreach (FileInfoEx file in newList)
                 {
-                    GroupBox groupBox = new GroupBox();
-                    groupBox.FlatStyle = FlatStyle.Standard;
+                    var lvItem = new ListViewItem(file.FileName);
+                    lvItem.SubItems.Add(((FileStates)(file.FileState)).ToString());
 
-                    Label labelFilePath = new Label();
-                    labelFilePath.Width = 200;
-                    labelFilePath.Text = file.FileInfoObj.FullName;
+                    this.listViewMain.Items.Add(lvItem);
 
-                    RadioButton rbRelease = new RadioButton();
-                    rbRelease.Text = "Release";
-                    RadioButton rbWork = new RadioButton();
-                    rbWork.Text = "Work";
-                    RadioButton rbInit = new RadioButton();
-                    rbInit.Text = "Init";
-                 
-                    groupBox.Width = 500;
-                    rbRelease.Margin = new Padding(250, 30, 0, 0);
-                    rbWork.Margin = new Padding(320, 30, 0, 0);
-                    rbInit.Margin = new Padding(350, 30, 0, 0);
-                    groupBox.Controls.Add(labelFilePath);
-                    groupBox.Controls.Add(rbRelease);
-                    groupBox.Controls.Add(rbWork);
-                    groupBox.Controls.Add(rbInit);
-                    
-                    flowLayoutPanel.Controls.Add(groupBox);
+                    row++;
                 }
-                
+
             }
-           
+
+            this.ResumeLayout();
+        }
+
+        private void FormFileStateSet_Load(object sender, EventArgs e)
+        {
+            
+
+            
+
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
