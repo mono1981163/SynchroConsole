@@ -7,12 +7,12 @@ using System.Text;
 
 namespace SynchroSetup.Model
 {
-    public interface Path
+    public interface IPath
     {
         string RunProcess(string flagName, SyncItem SyncParent, string sourceName, string targetName, List<FileInfoEx> targetAllFileList, List<FileInfoEx> newerList);
     }
 
-    public class FolderMapping : Path
+    public class FolderMapping : IPath
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string sourceName, string targetName, List<FileInfoEx> targetAllFileList, List<FileInfoEx> newerList)
         {
@@ -31,7 +31,7 @@ namespace SynchroSetup.Model
             return targetName;
         }
     }
-    public class ForceDownload : Path
+    public class ForceDownload : IPath
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string sourceName, string targetName, List<FileInfoEx> targetAllFileList, List<FileInfoEx> newerList)
         {
@@ -40,7 +40,7 @@ namespace SynchroSetup.Model
             return flagName; // return false
         }
     }
-    public class Mirror : Path
+    public class Mirror : IPath
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string sourceName, string targetName, List<FileInfoEx> targetAllFileList, List<FileInfoEx> newerList)
         {
@@ -63,12 +63,12 @@ namespace SynchroSetup.Model
     }
     public abstract class PathClass
     {
-        public abstract Path GetProcessFlag(string flagName);
+        public abstract IPath GetProcessFlag(string flagName);
     }
 
     public class FMPath : PathClass
     {
-        public override Path GetProcessFlag(string flagName)
+        public override IPath GetProcessFlag(string flagName)
         {
             switch (flagName)
             {

@@ -157,7 +157,7 @@ namespace SynchroLib
             targetList.Clear();
             if (SyncParent.Mirror)
             {
-                SynchroSetup.Model.Path MirrorFlag = pathClass.GetProcessFlag("-m");
+                SynchroSetup.Model.IPath MirrorFlag = pathClass.GetProcessFlag("-m");
                 MirrorFlag.RunProcess("-m", SyncParent, null, null, targetAllFileList, newerList);
             }
              
@@ -186,40 +186,40 @@ namespace SynchroLib
 
                     if (!this.SyncParent.ExcludeDirOrFile.Equals(""))
                     {
-                        Patterns excludeFlag = patternsClass.GetProcessFlag("-e");
+                        IPattern excludeFlag = patternsClass.GetProcessFlag("-e");
                         if (excludeFlag.RunProcess(false, SyncParent, null, sourceName, null, null, null, 0))
                             continue;
                     } 
                     if (!this.SyncParent.Pattern.Equals(""))
                     {
-                        Patterns patternFlag = patternsClass.GetProcessFlag("-p");
+                        IPattern patternFlag = patternsClass.GetProcessFlag("-p");
                         if (patternFlag.RunProcess(true, SyncParent, item.FileName, null, null, item, null, 0))
                             continue;
                     }
 
                     if (!this.SyncParent.State.Equals("") /*&& !this.SyncParent.FileStates.Equals("")*/)
                     {
-                        Patterns patternStateFlag = patternsClass.GetProcessFlag("-s");
+                        IPattern patternStateFlag = patternsClass.GetProcessFlag("-s");
                         if (!patternStateFlag.RunProcess(false, null, null, null, null, null, SyncParent.State.Split(','), item.FileState))
                             continue;
                     }
 
                     if (!this.SyncParent.IgnoreState.Equals(""))
                     {
-                        Patterns ignoreStateFlag = patternsClass.GetProcessFlag("-is");
+                        IPattern ignoreStateFlag = patternsClass.GetProcessFlag("-is");
                         if (ignoreStateFlag.RunProcess(false, null, null, null, null, null, SyncParent.IgnoreState.Split(','), item.FileState))
                             continue;
                     }
                     
                     if (!this.SyncParent.FolderMapping.Equals(""))
                     {
-                        SynchroSetup.Model.Path folderMappingFlag = pathClass.GetProcessFlag("-fm");
+                        SynchroSetup.Model.IPath folderMappingFlag = pathClass.GetProcessFlag("-fm");
                         targetName = folderMappingFlag.RunProcess("-fm", SyncParent, sourceName, targetName, null, null);
                     }
                     
                     if(this.SyncParent.ForceDownlaod && isFirstStart)
                     {
-                        SynchroSetup.Model.Path forceDownFlag = pathClass.GetProcessFlag("-fm");
+                        SynchroSetup.Model.IPath forceDownFlag = pathClass.GetProcessFlag("-fm");
                         forceDownFlag.RunProcess("-f", SyncParent, null, null, null, null);
                         isFirstStart = false;
                     }
@@ -228,7 +228,7 @@ namespace SynchroLib
                     {
                         if (!Directory.Exists(tempPath))
                             Directory.CreateDirectory(tempPath);
-                        Patterns lockFlag = patternsClass.GetProcessFlag("-lck");
+                        IPattern lockFlag = patternsClass.GetProcessFlag("-lck");
                         lockFlag.RunProcess(true, SyncParent, null, sourceName, tempFileName, item, null, 0);
                         lockFlag.RunProcess(false, SyncParent,null, tempFileName, targetName, item, null, 0);
                     }
@@ -237,13 +237,13 @@ namespace SynchroLib
 
                     if (this.SyncParent.Writable && File.Exists(targetName))
                     {
-                        Local writableFlag = localClass.GetProcessFlag("-w");
+                        ILocal writableFlag = localClass.GetProcessFlag("-w");
                         writableFlag.RunProcess("-w", null, targetName, null, null, null);
                     }
 
                     if (!this.SyncParent.DeletedDirOrFile.Equals(""))
                     {
-                        Local deleteFlag = localClass.GetProcessFlag("-d");
+                        ILocal deleteFlag = localClass.GetProcessFlag("-d");
                         deleteFlag.RunProcess("-d", SyncParent, targetName, item, deletedDirList, null);
                     }
                 }
@@ -258,7 +258,7 @@ namespace SynchroLib
               
             if (!this.SyncParent.RunFile.Equals(""))
             {
-                Local runFlag = localClass.GetProcessFlag("-r");
+                ILocal runFlag = localClass.GetProcessFlag("-r");
                 runFlag.RunProcess("-r", SyncParent, null, null, null, newerList);
             }
         }

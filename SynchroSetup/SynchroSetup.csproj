@@ -62,9 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Local.cs" />
-    <Compile Include="Model\Path.cs" />
-    <Compile Include="Model\Patterns.cs" />
+    <Compile Include="ProcessFlag\Local.cs" />
+    <Compile Include="ProcessFlag\Path.cs" />
+    <Compile Include="ProcessFlag\Patterns.cs" />
     <Compile Include="SynchroLib\Enumerators.cs" />
     <Compile Include="SynchroLib\ExtensionMethods.cs" />
     <Compile Include="SynchroLib\FileInfoEvents.cs" />

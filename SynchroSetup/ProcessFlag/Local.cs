@@ -8,12 +8,12 @@ using System.Text;
 
 namespace SynchroSetup.Model
 {
-    public interface Local
+    public interface ILocal
     {
         string RunProcess(string flagName, SyncItem SyncParent, string targetName, FileInfoEx item, List<string> deletedDirList, List<FileInfoEx> newerList);
     }
 
-    public class DeleteFile : Local
+    public class DeleteFile : ILocal
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string targetName, FileInfoEx item, List<string> deletedDirList, List<FileInfoEx> newerList) {
             string[] deletedFileList = SyncParent.DeletedDirOrFile.Split(',');
@@ -37,14 +37,14 @@ namespace SynchroSetup.Model
         }
     } 
 
-    public class WritableFile: Local
+    public class WritableFile: ILocal
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string targetName, FileInfoEx item, List<string> deletedDirList, List<FileInfoEx> newerList) {
             File.SetAttributes(targetName, FileAttributes.Normal);
             return flagName;
         }
     }
-    public class RunFile : Local
+    public class RunFile : ILocal
     {
         public string RunProcess(string flagName, SyncItem SyncParent, string targetName, FileInfoEx item, List<string> deletedDirList, List<FileInfoEx> newerList) {
             string[] RunFileList = SyncParent.RunFile.Split(',');
@@ -72,12 +72,12 @@ namespace SynchroSetup.Model
 
     public abstract class LocalClass
     {
-        public abstract Local GetProcessFlag(string flagName);
+        public abstract ILocal GetProcessFlag(string flagName);
     } 
 
     public class FMLocal : LocalClass
     {
-        public override Local GetProcessFlag(string flagName)
+        public override ILocal GetProcessFlag(string flagName)
         {
             switch (flagName)
             {

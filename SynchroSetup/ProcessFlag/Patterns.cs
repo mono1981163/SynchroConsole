@@ -8,12 +8,12 @@ using System.Text;
 
 namespace SynchroSetup.Model
 {
-    public interface Patterns
+    public interface IPattern
     {
         bool RunProcess(bool flag, SyncItem SyncParent, string fileName, string sourceName, string targetName, FileInfoEx item, string[] fileState, int fileStateValue);
     }
 
-    public class ExcludeFile : Patterns
+    public class ExcludeFile : IPattern
     {
         public bool RunProcess(bool flag, SyncItem SyncParent, string fileName, string sourceName, string targetName, FileInfoEx item, string[] fileState, int fileStateValue)
         {
@@ -33,7 +33,7 @@ namespace SynchroSetup.Model
         }
     }
 
-    public class Pattern : Patterns
+    public class Pattern : IPattern
     {
         public bool RunProcess(bool flag, SyncItem SyncParent, string fileName, string sourceName, string targetName, FileInfoEx item, string[] fileState, int fileStateValue)
         {
@@ -51,7 +51,7 @@ namespace SynchroSetup.Model
         }
     }
 
-    public class LockFile : Patterns
+    public class LockFile : IPattern
     {
         public bool RunProcess(bool flag, SyncItem SyncParent, string fileName, string sourceName, string targetName, FileInfoEx item, string[] fileState, int fileStateValue)
         {
@@ -149,7 +149,7 @@ namespace SynchroSetup.Model
 
     }
 
-    public class StateFile : Patterns
+    public class StateFile : IPattern
     {
         public bool RunProcess(bool flag, SyncItem SyncParent, string fileName, string sourceName, string targetName, FileInfoEx item, string[] fileState, int fileStateValue)
         {
@@ -182,11 +182,11 @@ namespace SynchroSetup.Model
     }
     public abstract class PatternsClass
     {
-        public abstract Patterns GetProcessFlag(string flagName);
+        public abstract IPattern GetProcessFlag(string flagName);
     }
     public class FMPatterns : PatternsClass
     {
-        public override Patterns GetProcessFlag(string flagName)
+        public override IPattern GetProcessFlag(string flagName)
         {
             switch (flagName)
             {
