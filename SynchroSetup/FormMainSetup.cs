@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using SynchroWCF;
 using SynchroLib;
 using Common;
+using System.Threading;
 
 namespace SynchroSetup
 {
@@ -31,13 +32,16 @@ namespace SynchroSetup
 		public FormMainSetup()
 		{
 			InitializeComponent();
+            m_settings.Load();
+            foreach (SyncItem item in m_settings.SyncItems)
+            {
+                item.FileInfoEvent += new FileInfoHandler(item_FileInfoEvent);
+            }
 
-			Globals.StarterProcess.Exited += new EventHandler(StarterProcess_Exited);
-			SynchCommon.StartStopServiceEvent += new StartStopServiceHandler(SynchCommon_StartStopServiceEvent);
+            m_updateThread = new Thread(new ThreadStart(UpdateThread));
+            m_updateThread.IsBackground = true;
 
-			bool start = (Globals.IsServiceInstalled());
-			bool stop  = (Globals.IsServiceInstalledWithStatus(ServiceControllerStatus.Running));
-			UpdateStartStopButtons(start, stop);
+            Globals.StarterProcess.Exited += new EventHandler(StarterProcess_Exited);
 
 			try
 			{
@@ -142,9 +146,6 @@ namespace SynchroSetup
 		{
 			FormConfigure form = new FormConfigure();
 			form.ShowDialog();
-			bool start = (Globals.IsServiceInstalled());
-			bool stop  = (Globals.IsServiceInstalledWithStatus(ServiceControllerStatus.Running));
-			UpdateStartStopButtons(start, stop);
 		}
 
 		//--------------------------------------------------------------------------------
@@ -170,42 +171,35 @@ namespace SynchroSetup
 			Close();
 		}
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Fired when the user clicks the Start/Restart Service button, and attempts to 
-		/// start/restart the synchro windows service.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Fired when the user clicks the Start/Restart Service button, and attempts to 
+        /// start/restart the synchro windows service.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// 
+        bool isFirst = true;
 		private void buttonStartService_Click(object sender, EventArgs e)
 		{
-			Globals.StartService();
-		}
+			//Globals.StartService();
+            UpdateActivityList("Started", DateTime.Now);
+            //if (m_updateThread.ThreadState == System.Threading.ThreadState.Stopped)
+            //{
+            //m_updateThread = new Thread(new ThreadStart(UpdateThread));
+            //m_updateThread.IsBackground = true;
+            if (!isFirst)
+            {
+                m_updateThread.Abort();
+                m_updateThread = new Thread(new ThreadStart(UpdateThread));
+                m_updateThread.IsBackground = true;
+            }
+            //}
+            m_updateThread.Start();
+            isFirst = false;
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Fired when the user clicks the Stop Service button, and attempts to stop the 
-		/// synchro windows service.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void buttonStopService_Click(object sender, EventArgs e)
-		{
-			Globals.StopService();
-		}
-
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Updates the start/stop service buttons based on the specified parameters.
-		/// </summary>
-		/// <param name="start"></param>
-		/// <param name="stop"></param>
-		private void UpdateStartStopButtons(bool start, bool stop)
-		{
-			this.buttonStartService.Enabled = start;
-			this.buttonStopService.Enabled  = stop;
-		}
-
+        }
+        
 		//--------------------------------------------------------------------------------
 		/// <summary>
 		/// Updates the activity list box
@@ -216,23 +210,6 @@ namespace SynchroSetup
 			string dateFormat = "dd MMM yyyy HH:mm";
 			text = string.Format("{0} - {1}", date.ToString(dateFormat), text);
 			this.listBoxActivity.Items.Insert(0, text);
-		}
-
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Fired when the service is started/stoped INTERNALLY (without using the 
-		/// SynchServiceStarter app).
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void SynchCommon_StartStopServiceEvent(object sender, StartStopServiceEventArgs e)
-		{
-			bool start = (Globals.IsServiceInstalled());
-			bool stop  = (Globals.IsServiceInstalledWithStatus(ServiceControllerStatus.Running));
-			UpdateStartStopButtons(start, stop);
-
-			string text = (stop) ? "Started/restarted SynchroService" : "Stopped SynchroService";
-			UpdateActivityList(text, DateTime.Now);
 		}
 
 		//--------------------------------------------------------------------------------
@@ -250,14 +227,7 @@ namespace SynchroSetup
 			{
 				case SSSExitCodes.Success :
 					{
-						bool start = (Globals.IsServiceInstalled());
-						bool stop  = (Globals.IsServiceInstalledWithStatus(ServiceControllerStatus.Running));
-						StartStopButtonInvoker method = new StartStopButtonInvoker(UpdateStartStopButtons);
-						Invoke(method, start, stop);
-
-						string text = (stop) ? "Started/restarted SynchroService" : "Stopped SynchroService";
-						UpdateActivityListInvoker method2 = new UpdateActivityListInvoker(UpdateActivityList);
-						Invoke(method2, text, DateTime.Now);
+                        UpdateActivityListInvoker method2 = new UpdateActivityListInvoker(UpdateActivityList);
 					}
 					break;
 
@@ -280,5 +250,153 @@ namespace SynchroSetup
 			}
 		}
 
-	}
+        Thread m_updateThread = null;
+        DatePartFlags m_equalityFlags = DatePartFlags.Minute | DatePartFlags.Second;
+       
+
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Constructor
+        /// </summary>
+
+            
+            
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Fired when we receive a Fileinfo event, indciating that an attempt was made 
+        /// at an update.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void item_FileInfoEvent(object sender, FileInfoArgs e)
+        {
+            Debug.WriteLine("Update completed");
+            SyncItem item = sender as SyncItem;
+            string text = string.Format("{0}, updated={1}, elapsed={2}",
+                                        item.Name,
+                                        e.UpdateCount,
+                                        e.Elapsed.ToString());
+            if (this.listBoxActivity.InvokeRequired)
+            {
+                UpdateActivityListInvoker method = new UpdateActivityListInvoker(UpdateActivityList);
+                Invoke(method, text, DateTime.Now);
+            }
+            else
+            {
+                UpdateActivityList(text, DateTime.Now);
+            }
+        }
+
+
+        //////////////////////////////////////////////////////////////////////////////////
+        // Thread stuff
+        //////////////////////////////////////////////////////////////////////////////////
+
+
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// The thread delegate method. It sits/spinswiting for the next ttie to check 
+        /// for file updates.
+        /// </summary>
+        private void UpdateThread()
+        {
+            try
+            {
+                DateTime temp;
+                DateTime now;
+                DateTime then = new DateTime(0);
+                TimeSpan interval = new TimeSpan(0, 0, this.m_settings.SyncMinutes, 0, 0);
+                bool waiting = true;
+                while (true)
+                {
+                    temp = DateTime.Now;
+                    now = new DateTime(temp.Year, temp.Month, temp.Day, temp.Hour, temp.Minute, 0, 0);
+                    if (!waiting)
+                    {
+                        int difference = (this.m_settings.NormalizeTime) ? now.Minute % m_settings.SyncMinutes : 0;
+                        then = now.Add(interval.Subtract(new TimeSpan(0, 0, difference, 0, 0)));
+                        Debug.WriteLine(string.Format("Next update time is {0}", then.ToString("dd MMM yyyy HH:mm")));
+                        waiting = true;
+                    }
+                    if (now.Equal(then, m_equalityFlags) || then.Ticks == 0)
+                    {
+                        Debug.WriteLine("Checking for files");
+                        waiting = false;
+                        CheckForFiles();
+                    }
+                    else
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (ThreadAbortException taex)
+            {
+                // we dn't care about abort exceptions, because we probably caused 
+                // it intentionally.
+                if (taex != null) { }
+            }
+            catch (Exception ex)
+            {
+                // if this application is a windows service, log the error
+                // otherwise, show a messagebox.
+                MessageBox.Show(string.Format("Exception encountered:\n\n{0}", ex.Message));
+            }
+        }
+
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        private void UpdateListBox(string text)
+        {
+            if (this.listBoxActivity.InvokeRequired)
+            {
+                UpdateActivityListInvoker method = new UpdateActivityListInvoker(UpdateActivityList);
+                Invoke(method, text, DateTime.Now);
+            }
+            else
+            {
+                UpdateActivityList(text, DateTime.Now);
+            }
+        }
+
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CheckForFiles()
+        {
+            Debug.WriteLine("Checking for files");
+            string text = string.Format("Checking {0} sync item{1}",
+                                        this.m_settings.SyncItems.Count,
+                                        (this.m_settings.SyncItems.Count > 1) ? "s" : "");
+            UpdateListBox(text);
+
+            //foreach (SyncItem item in this.m_settings.SyncItems)
+            //{
+            //    item.Start();
+            //}
+            m_settings.SyncItems.StartUpdate();
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////
+        // Form stuff
+        //////////////////////////////////////////////////////////////////////////////////
+
+        //--------------------------------------------------------------------------------
+        private void buttonSyncStart_Click(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Starting main thread");
+            UpdateActivityList("Started", DateTime.Now);
+            if (m_updateThread.ThreadState == System.Threading.ThreadState.Stopped)
+            {
+                m_updateThread = new Thread(new ThreadStart(UpdateThread));
+                m_updateThread.IsBackground = true;
+            }
+            m_updateThread.Start();
+        }
+      
+    }
 }

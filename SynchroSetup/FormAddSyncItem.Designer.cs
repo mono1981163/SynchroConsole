@@ -306,7 +306,6 @@
             this.textBoxExcludeFile.Name = "textBoxExcludeFile";
             this.textBoxExcludeFile.Size = new System.Drawing.Size(305, 20);
             this.textBoxExcludeFile.TabIndex = 20;
-            this.textBoxExcludeFile.Text = "Yucheng Printer System.docx";
             // 
             // label8
             // 
@@ -323,7 +322,6 @@
             this.textBoxRunFile.Name = "textBoxRunFile";
             this.textBoxRunFile.Size = new System.Drawing.Size(341, 20);
             this.textBoxRunFile.TabIndex = 22;
-            this.textBoxRunFile.Text = ".txt,bbb.docx";
             // 
             // checkBoxForceDownload
             // 

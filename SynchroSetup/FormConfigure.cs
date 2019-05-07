@@ -32,7 +32,7 @@ namespace SynchroSetup
 		{
 			InitializeComponent();
 
-			this.buttonInstall.Text = (Globals.IsServiceInstalled()) ? "Uninstall Service" : "Install Service";
+			//this.buttonInstall.Text = (Globals.IsServiceInstalled()) ? "Uninstall Service" : "Install Service";
 
 			PopulateSyncItemListView();
 		}
@@ -49,7 +49,7 @@ namespace SynchroSetup
 			this.m_settings.Load();
 			this.checkBoxNormalize.Checked    = this.m_settings.NormalizeTime;
 			this.textBoxSyncMinutes.Text      = this.m_settings.SyncMinutes.ToString();
-			this.buttonInstall.Enabled        = true;
+			//this.buttonInstall.Enabled        = true;
 
 			// and then our sync items
 			if (this.m_settings.SyncItems != null)
@@ -232,21 +232,16 @@ namespace SynchroSetup
 		void process_Exited(object sender, EventArgs e)
 		{
 			string buttonText = (Globals.IsServiceInstalled()) ? "Uninstall Service" : "Install Service";
-			if (buttonInstall.InvokeRequired)
-			{
-				InstallerButtonInvoker method = new InstallerButtonInvoker(UpdateInstallButton);
-				Invoke(method, buttonText);
-			}
-			else
-			{
-				UpdateInstallButton(buttonText);
-			}
+
+			InstallerButtonInvoker method = new InstallerButtonInvoker(UpdateInstallButton);
+			Invoke(method, buttonText);
+
 		}
 
 		//--------------------------------------------------------------------------------
 		private void UpdateInstallButton(string text)
 		{
-			this.buttonInstall.Text = text;
+			//this.buttonInstall.Text = text;
 			if (text == "Uninstall Service")
 			{
 				MessageBox.Show("Service installed but not started. Make sure you \nclick the Start/Restart Service button on \nthe main form.", "Service Installed", MessageBoxButtons.OK, MessageBoxIcon.Information);

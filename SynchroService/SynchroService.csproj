@@ -82,10 +82,6 @@
       <Project>{62976105-37A7-42E1-908B-79A972154D63}</Project>
       <Name>AppSettingsLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SynchroLib\SynchroLib.csproj">
-      <Project>{CEC56B4E-F5C4-442F-8D7D-43B418491654}</Project>
-      <Name>SynchroLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SynchroWCF\SynchroWCF.csproj">
       <Project>{FB637DBC-14F8-469E-8083-E25FA84AF27C}</Project>
       <Name>SynchroWCF</Name>
