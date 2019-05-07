@@ -142,7 +142,7 @@ namespace SynchroLib
             
             List<string> deletedDirList = new List<string>();
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
+            bool isFirstStart = true;
             // parse FileStates
             JObject filestates = null;
             if (!this.SyncParent.FileStates.Equals(""))
@@ -182,13 +182,11 @@ namespace SynchroLib
                     if (!this.SyncParent.FolderMapping.Equals(""))
                         targetName = FolderMapping(sourceName, targetName);
                     
-                    if(this.SyncParent.ForceDownlaod)
+                    if(this.SyncParent.ForceDownlaod && isFirstStart)
                     {
-                        if (this.SyncParent.ForceDownlaod)
-                        {
-                            Directory.Delete(SyncParent.SyncToPath, true);
-                            Directory.CreateDirectory(SyncParent.SyncToPath);
-                        }
+                        Directory.Delete(SyncParent.SyncToPath, true);
+                        Directory.CreateDirectory(SyncParent.SyncToPath);
+                        isFirstStart = false;
                     }
 
                     if (this.SyncParent.Lock)
@@ -217,7 +215,7 @@ namespace SynchroLib
                 DeleteDirectory(deletedDirList);
               
             if (!this.SyncParent.RunFile.Equals(""))
-                RunFiles(this.SyncParent.RunFile);
+                RunFiles(this.SyncParent.RunFile, newerList);
         }
         // << Rui add
         private bool GetFileState(string[] fileState, int fileStateValue, bool isFound) {
@@ -303,13 +301,20 @@ namespace SynchroLib
             }
         }
 
-        private void RunFiles(string RunFile)
+        private void RunFiles(string RunFile, List<FileInfoEx> newerList)
         {
             string[] RunFileList = RunFile.Split(',');
             foreach (var runFile in RunFileList)
             {
-                if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile)))
-                    Process.Start(Path.Combine(SyncParent.SyncToPath, runFile));
+                foreach(var item in newerList)
+                {
+                    if (File.Exists(Path.Combine(SyncParent.SyncToPath, runFile)))
+                        Process.Start(Path.Combine(SyncParent.SyncToPath, runFile));
+
+                    else if (item.FileInfoObj.Extension.ToLower().Equals(runFile.ToLower()))
+                        if(File.Exists(Path.Combine(SyncParent.SyncToPath, item.FileName)))
+                            Process.Start(Path.Combine(SyncParent.SyncToPath, item.FileName));
+                }
             }
         }
 

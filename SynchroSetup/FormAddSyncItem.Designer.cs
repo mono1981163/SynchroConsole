@@ -71,34 +71,34 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 44);
+            this.label1.Location = new System.Drawing.Point(13, 48);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(137, 12);
+            this.label1.Size = new System.Drawing.Size(116, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Sync FROM this folder:";
             // 
             // textBoxSyncFrom
             // 
-            this.textBoxSyncFrom.Location = new System.Drawing.Point(136, 40);
+            this.textBoxSyncFrom.Location = new System.Drawing.Point(136, 43);
             this.textBoxSyncFrom.Name = "textBoxSyncFrom";
-            this.textBoxSyncFrom.Size = new System.Drawing.Size(341, 21);
+            this.textBoxSyncFrom.Size = new System.Drawing.Size(341, 20);
             this.textBoxSyncFrom.TabIndex = 4;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 68);
+            this.label2.Location = new System.Drawing.Point(13, 74);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(125, 12);
+            this.label2.Size = new System.Drawing.Size(100, 13);
             this.label2.TabIndex = 6;
             this.label2.Text = "Sync TO this folder:";
             // 
             // buttonBrowseFrom
             // 
             this.buttonBrowseFrom.Font = new System.Drawing.Font("Times New Roman", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonBrowseFrom.Location = new System.Drawing.Point(484, 40);
+            this.buttonBrowseFrom.Location = new System.Drawing.Point(484, 43);
             this.buttonBrowseFrom.Name = "buttonBrowseFrom";
-            this.buttonBrowseFrom.Size = new System.Drawing.Size(32, 18);
+            this.buttonBrowseFrom.Size = new System.Drawing.Size(32, 20);
             this.buttonBrowseFrom.TabIndex = 5;
             this.buttonBrowseFrom.Text = "...";
             this.buttonBrowseFrom.UseVisualStyleBackColor = true;
@@ -106,17 +106,17 @@
             // 
             // textBoxSyncTo
             // 
-            this.textBoxSyncTo.Location = new System.Drawing.Point(136, 65);
+            this.textBoxSyncTo.Location = new System.Drawing.Point(136, 70);
             this.textBoxSyncTo.Name = "textBoxSyncTo";
-            this.textBoxSyncTo.Size = new System.Drawing.Size(341, 21);
+            this.textBoxSyncTo.Size = new System.Drawing.Size(341, 20);
             this.textBoxSyncTo.TabIndex = 7;
             // 
             // buttonBrowseTo
             // 
             this.buttonBrowseTo.Font = new System.Drawing.Font("Times New Roman", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonBrowseTo.Location = new System.Drawing.Point(484, 65);
+            this.buttonBrowseTo.Location = new System.Drawing.Point(484, 70);
             this.buttonBrowseTo.Name = "buttonBrowseTo";
-            this.buttonBrowseTo.Size = new System.Drawing.Size(32, 18);
+            this.buttonBrowseTo.Size = new System.Drawing.Size(32, 20);
             this.buttonBrowseTo.TabIndex = 8;
             this.buttonBrowseTo.Text = "...";
             this.buttonBrowseTo.UseVisualStyleBackColor = true;
@@ -127,9 +127,9 @@
             this.checkBoxIncludeSubs.AutoSize = true;
             this.checkBoxIncludeSubs.Checked = true;
             this.checkBoxIncludeSubs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxIncludeSubs.Location = new System.Drawing.Point(16, 138);
+            this.checkBoxIncludeSubs.Location = new System.Drawing.Point(16, 150);
             this.checkBoxIncludeSubs.Name = "checkBoxIncludeSubs";
-            this.checkBoxIncludeSubs.Size = new System.Drawing.Size(138, 16);
+            this.checkBoxIncludeSubs.Size = new System.Drawing.Size(115, 17);
             this.checkBoxIncludeSubs.TabIndex = 13;
             this.checkBoxIncludeSubs.Text = "Include sub-folders";
             this.checkBoxIncludeSubs.UseVisualStyleBackColor = true;
@@ -137,9 +137,9 @@
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(184, 487);
+            this.buttonOK.Location = new System.Drawing.Point(184, 528);
             this.buttonOK.Name = "buttonOK";
-            this.buttonOK.Size = new System.Drawing.Size(75, 21);
+            this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 16;
             this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
@@ -148,9 +148,9 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(266, 487);
+            this.buttonCancel.Location = new System.Drawing.Point(266, 528);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 21);
+            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 17;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
@@ -159,9 +159,9 @@
             // checkBoxRemoveAfterSync
             // 
             this.checkBoxRemoveAfterSync.AutoSize = true;
-            this.checkBoxRemoveAfterSync.Location = new System.Drawing.Point(16, 180);
+            this.checkBoxRemoveAfterSync.Location = new System.Drawing.Point(16, 195);
             this.checkBoxRemoveAfterSync.Name = "checkBoxRemoveAfterSync";
-            this.checkBoxRemoveAfterSync.Size = new System.Drawing.Size(228, 16);
+            this.checkBoxRemoveAfterSync.Size = new System.Drawing.Size(200, 17);
             this.checkBoxRemoveAfterSync.TabIndex = 15;
             this.checkBoxRemoveAfterSync.Text = "Remove \"FROM\" files after synching";
             this.checkBoxRemoveAfterSync.UseVisualStyleBackColor = true;
@@ -170,9 +170,9 @@
             // checkBoxBackupBeforeSync
             // 
             this.checkBoxBackupBeforeSync.AutoSize = true;
-            this.checkBoxBackupBeforeSync.Location = new System.Drawing.Point(16, 160);
+            this.checkBoxBackupBeforeSync.Location = new System.Drawing.Point(16, 173);
             this.checkBoxBackupBeforeSync.Name = "checkBoxBackupBeforeSync";
-            this.checkBoxBackupBeforeSync.Size = new System.Drawing.Size(228, 16);
+            this.checkBoxBackupBeforeSync.Size = new System.Drawing.Size(191, 17);
             this.checkBoxBackupBeforeSync.TabIndex = 14;
             this.checkBoxBackupBeforeSync.Text = "Backup \"TO\" files before replacing";
             this.checkBoxBackupBeforeSync.UseVisualStyleBackColor = true;
@@ -181,25 +181,25 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 92);
+            this.label3.Location = new System.Drawing.Point(13, 100);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(83, 12);
+            this.label3.Size = new System.Drawing.Size(73, 13);
             this.label3.TabIndex = 9;
             this.label3.Text = "Backup folder";
             // 
             // textBoxBackupFolder
             // 
-            this.textBoxBackupFolder.Location = new System.Drawing.Point(136, 90);
+            this.textBoxBackupFolder.Location = new System.Drawing.Point(136, 98);
             this.textBoxBackupFolder.Name = "textBoxBackupFolder";
-            this.textBoxBackupFolder.Size = new System.Drawing.Size(341, 21);
+            this.textBoxBackupFolder.Size = new System.Drawing.Size(341, 20);
             this.textBoxBackupFolder.TabIndex = 10;
             // 
             // buttonBrowseBackup
             // 
             this.buttonBrowseBackup.Font = new System.Drawing.Font("Times New Roman", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonBrowseBackup.Location = new System.Drawing.Point(484, 90);
+            this.buttonBrowseBackup.Location = new System.Drawing.Point(484, 98);
             this.buttonBrowseBackup.Name = "buttonBrowseBackup";
-            this.buttonBrowseBackup.Size = new System.Drawing.Size(32, 18);
+            this.buttonBrowseBackup.Size = new System.Drawing.Size(32, 20);
             this.buttonBrowseBackup.TabIndex = 11;
             this.buttonBrowseBackup.Text = "...";
             this.buttonBrowseBackup.UseVisualStyleBackColor = true;
@@ -208,17 +208,17 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 15);
+            this.label4.Location = new System.Drawing.Point(13, 16);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 12);
+            this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 0;
             this.label4.Text = "Sync item name";
             // 
             // textBoxName
             // 
-            this.textBoxName.Location = new System.Drawing.Point(136, 12);
+            this.textBoxName.Location = new System.Drawing.Point(136, 13);
             this.textBoxName.Name = "textBoxName";
-            this.textBoxName.Size = new System.Drawing.Size(180, 21);
+            this.textBoxName.Size = new System.Drawing.Size(180, 20);
             this.textBoxName.TabIndex = 1;
             // 
             // checkBoxEnable
@@ -226,9 +226,9 @@
             this.checkBoxEnable.AutoSize = true;
             this.checkBoxEnable.Checked = true;
             this.checkBoxEnable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxEnable.Location = new System.Drawing.Point(16, 117);
+            this.checkBoxEnable.Location = new System.Drawing.Point(16, 127);
             this.checkBoxEnable.Name = "checkBoxEnable";
-            this.checkBoxEnable.Size = new System.Drawing.Size(60, 16);
+            this.checkBoxEnable.Size = new System.Drawing.Size(59, 17);
             this.checkBoxEnable.TabIndex = 12;
             this.checkBoxEnable.Text = "Enable";
             this.checkBoxEnable.UseVisualStyleBackColor = true;
@@ -238,9 +238,9 @@
             this.labelHoverList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.labelHoverList.Cursor = System.Windows.Forms.Cursors.Cross;
             this.labelHoverList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.labelHoverList.Location = new System.Drawing.Point(323, 12);
+            this.labelHoverList.Location = new System.Drawing.Point(323, 13);
             this.labelHoverList.Name = "labelHoverList";
-            this.labelHoverList.Size = new System.Drawing.Size(154, 18);
+            this.labelHoverList.Size = new System.Drawing.Size(154, 20);
             this.labelHoverList.TabIndex = 2;
             this.labelHoverList.Text = "Hover Here For Current List";
             this.labelHoverList.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -248,9 +248,9 @@
             // 
             // label5
             // 
-            this.label5.Location = new System.Drawing.Point(280, 126);
+            this.label5.Location = new System.Drawing.Point(280, 137);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(236, 37);
+            this.label5.Size = new System.Drawing.Size(236, 40);
             this.label5.TabIndex = 18;
             this.label5.Text = "All folder specified on this form MUST already  exist before attempting to run th" +
     "e service.";
@@ -258,9 +258,9 @@
             // checkBoxMakeFilesWritable
             // 
             this.checkBoxMakeFilesWritable.AutoSize = true;
-            this.checkBoxMakeFilesWritable.Location = new System.Drawing.Point(16, 202);
+            this.checkBoxMakeFilesWritable.Location = new System.Drawing.Point(16, 219);
             this.checkBoxMakeFilesWritable.Name = "checkBoxMakeFilesWritable";
-            this.checkBoxMakeFilesWritable.Size = new System.Drawing.Size(162, 16);
+            this.checkBoxMakeFilesWritable.Size = new System.Drawing.Size(131, 17);
             this.checkBoxMakeFilesWritable.TabIndex = 15;
             this.checkBoxMakeFilesWritable.Text = "Make the files writable";
             this.checkBoxMakeFilesWritable.UseVisualStyleBackColor = true;
@@ -268,9 +268,9 @@
             // checkBoxLck
             // 
             this.checkBoxLck.AutoSize = true;
-            this.checkBoxLck.Location = new System.Drawing.Point(15, 321);
+            this.checkBoxLck.Location = new System.Drawing.Point(15, 348);
             this.checkBoxLck.Name = "checkBoxLck";
-            this.checkBoxLck.Size = new System.Drawing.Size(282, 16);
+            this.checkBoxLck.Size = new System.Drawing.Size(219, 17);
             this.checkBoxLck.TabIndex = 15;
             this.checkBoxLck.Text = "Special treatment for files locked by vault";
             this.checkBoxLck.UseVisualStyleBackColor = true;
@@ -278,58 +278,59 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 225);
+            this.label6.Location = new System.Drawing.Point(15, 244);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(77, 12);
+            this.label6.Size = new System.Drawing.Size(67, 13);
             this.label6.TabIndex = 9;
             this.label6.Text = "Delete these";
             // 
             // textBoxDeletedDirOrFile
             // 
-            this.textBoxDeletedDirOrFile.Location = new System.Drawing.Point(136, 222);
+            this.textBoxDeletedDirOrFile.Location = new System.Drawing.Point(136, 241);
             this.textBoxDeletedDirOrFile.Name = "textBoxDeletedDirOrFile";
-            this.textBoxDeletedDirOrFile.Size = new System.Drawing.Size(341, 21);
+            this.textBoxDeletedDirOrFile.Size = new System.Drawing.Size(341, 20);
             this.textBoxDeletedDirOrFile.TabIndex = 10;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(13, 250);
+            this.label7.Location = new System.Drawing.Point(13, 271);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(167, 12);
+            this.label7.Size = new System.Drawing.Size(138, 13);
             this.label7.TabIndex = 19;
             this.label7.Text = "Exclude sub path from input";
             // 
             // textBoxExcludeFile
             // 
-            this.textBoxExcludeFile.Location = new System.Drawing.Point(172, 247);
+            this.textBoxExcludeFile.Location = new System.Drawing.Point(172, 268);
             this.textBoxExcludeFile.Name = "textBoxExcludeFile";
-            this.textBoxExcludeFile.Size = new System.Drawing.Size(305, 21);
+            this.textBoxExcludeFile.Size = new System.Drawing.Size(305, 20);
             this.textBoxExcludeFile.TabIndex = 20;
             this.textBoxExcludeFile.Text = "Yucheng Printer System.docx";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(12, 273);
+            this.label8.Location = new System.Drawing.Point(12, 296);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(143, 12);
+            this.label8.Size = new System.Drawing.Size(113, 13);
             this.label8.TabIndex = 21;
             this.label8.Text = "Run these file patterns";
             // 
             // textBoxRunFile
             // 
-            this.textBoxRunFile.Location = new System.Drawing.Point(136, 270);
+            this.textBoxRunFile.Location = new System.Drawing.Point(136, 293);
             this.textBoxRunFile.Name = "textBoxRunFile";
-            this.textBoxRunFile.Size = new System.Drawing.Size(341, 21);
+            this.textBoxRunFile.Size = new System.Drawing.Size(341, 20);
             this.textBoxRunFile.TabIndex = 22;
+            this.textBoxRunFile.Text = ".txt,bbb.docx";
             // 
             // checkBoxForceDownload
             // 
             this.checkBoxForceDownload.AutoSize = true;
-            this.checkBoxForceDownload.Location = new System.Drawing.Point(16, 298);
+            this.checkBoxForceDownload.Location = new System.Drawing.Point(16, 323);
             this.checkBoxForceDownload.Name = "checkBoxForceDownload";
-            this.checkBoxForceDownload.Size = new System.Drawing.Size(108, 16);
+            this.checkBoxForceDownload.Size = new System.Drawing.Size(104, 17);
             this.checkBoxForceDownload.TabIndex = 23;
             this.checkBoxForceDownload.Text = "Force Download";
             this.checkBoxForceDownload.UseVisualStyleBackColor = true;
@@ -337,41 +338,41 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 346);
+            this.label9.Location = new System.Drawing.Point(12, 375);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(47, 12);
+            this.label9.Size = new System.Drawing.Size(41, 13);
             this.label9.TabIndex = 9;
             this.label9.Text = "Pattern";
             // 
             // textBoxPattern
             // 
-            this.textBoxPattern.Location = new System.Drawing.Point(136, 343);
+            this.textBoxPattern.Location = new System.Drawing.Point(136, 372);
             this.textBoxPattern.Name = "textBoxPattern";
-            this.textBoxPattern.Size = new System.Drawing.Size(341, 21);
+            this.textBoxPattern.Size = new System.Drawing.Size(341, 20);
             this.textBoxPattern.TabIndex = 10;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(13, 391);
+            this.label11.Location = new System.Drawing.Point(13, 424);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(89, 12);
+            this.label11.Size = new System.Drawing.Size(80, 13);
             this.label11.TabIndex = 9;
             this.label11.Text = "Folder Mapping";
             // 
             // textBoxFolderMapping
             // 
-            this.textBoxFolderMapping.Location = new System.Drawing.Point(137, 389);
+            this.textBoxFolderMapping.Location = new System.Drawing.Point(137, 421);
             this.textBoxFolderMapping.Name = "textBoxFolderMapping";
-            this.textBoxFolderMapping.Size = new System.Drawing.Size(341, 21);
+            this.textBoxFolderMapping.Size = new System.Drawing.Size(341, 20);
             this.textBoxFolderMapping.TabIndex = 10;
             // 
             // checkBoxMirror
             // 
             this.checkBoxMirror.AutoSize = true;
-            this.checkBoxMirror.Location = new System.Drawing.Point(15, 367);
+            this.checkBoxMirror.Location = new System.Drawing.Point(15, 398);
             this.checkBoxMirror.Name = "checkBoxMirror";
-            this.checkBoxMirror.Size = new System.Drawing.Size(60, 16);
+            this.checkBoxMirror.Size = new System.Drawing.Size(52, 17);
             this.checkBoxMirror.TabIndex = 23;
             this.checkBoxMirror.Text = "Mirror";
             this.checkBoxMirror.UseVisualStyleBackColor = true;
@@ -379,40 +380,40 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(13, 416);
+            this.label10.Location = new System.Drawing.Point(13, 451);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(113, 12);
+            this.label10.Size = new System.Drawing.Size(100, 13);
             this.label10.TabIndex = 24;
             this.label10.Text = "States to Download";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(15, 440);
+            this.label12.Location = new System.Drawing.Point(15, 477);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(89, 12);
+            this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 25;
             this.label12.Text = "Invalid States";
             // 
             // textBoxState
             // 
-            this.textBoxState.Location = new System.Drawing.Point(137, 414);
+            this.textBoxState.Location = new System.Drawing.Point(137, 449);
             this.textBoxState.Name = "textBoxState";
-            this.textBoxState.Size = new System.Drawing.Size(340, 21);
+            this.textBoxState.Size = new System.Drawing.Size(340, 20);
             this.textBoxState.TabIndex = 26;
             // 
             // textBoxInvalidState
             // 
-            this.textBoxInvalidState.Location = new System.Drawing.Point(137, 438);
+            this.textBoxInvalidState.Location = new System.Drawing.Point(137, 475);
             this.textBoxInvalidState.Name = "textBoxInvalidState";
-            this.textBoxInvalidState.Size = new System.Drawing.Size(340, 21);
+            this.textBoxInvalidState.Size = new System.Drawing.Size(340, 20);
             this.textBoxInvalidState.TabIndex = 27;
             // 
             // btnChangeFileState
             // 
-            this.btnChangeFileState.Location = new System.Drawing.Point(38, 487);
+            this.btnChangeFileState.Location = new System.Drawing.Point(38, 528);
             this.btnChangeFileState.Name = "btnChangeFileState";
-            this.btnChangeFileState.Size = new System.Drawing.Size(93, 21);
+            this.btnChangeFileState.Size = new System.Drawing.Size(93, 23);
             this.btnChangeFileState.TabIndex = 28;
             this.btnChangeFileState.Text = "Change state";
             this.btnChangeFileState.UseVisualStyleBackColor = true;
@@ -420,9 +421,9 @@
             // 
             // FormAddSyncItem
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(528, 520);
+            this.ClientSize = new System.Drawing.Size(528, 563);
             this.Controls.Add(this.btnChangeFileState);
             this.Controls.Add(this.textBoxInvalidState);
             this.Controls.Add(this.textBoxState);
